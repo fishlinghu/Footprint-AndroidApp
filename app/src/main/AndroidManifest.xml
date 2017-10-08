@@ -28,7 +28,8 @@
             android:name=".MainActivity"
             android:label="@string/app_name" />
         <activity android:name=".RecordTripActivity" />
-        <activity android:name=".TripCompleteActivity"></activity>
+        <activity android:name=".TripCompleteActivity" />
+        <activity android:name=".SearchActivity"></activity>
     </application>
 
 </manifest>
