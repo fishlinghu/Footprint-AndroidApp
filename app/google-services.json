@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1018564960080",
+    "firebase_url": "https://footprint-aff8d.firebaseio.com",
+    "project_id": "footprint-aff8d",
+    "storage_bucket": "footprint-aff8d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1018564960080:android:471c43f99a8a8834",
+        "android_client_info": {
+          "package_name": "fishlinghu.footprint"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1018564960080-okunjs8ovk7gd98op8n83rmtno08f1lm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "fishlinghu.footprint",
+            "certificate_hash": "dca6ed20059cff6d5c08c592b458235c35911743"
+          }
+        },
+        {
+          "client_id": "1018564960080-4jnqqlfpe9rppg3ahr1ie4vhdc48kti4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBojGUhIR8lHrdQD2bvtGnuhkyFQ1V79Ds"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1018564960080-4jnqqlfpe9rppg3ahr1ie4vhdc48kti4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
