@@ -14,13 +14,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class SearchActivity extends AppCompatActivity
+public class ProfileActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search);
+        setContentView(R.layout.activity_profile);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -82,13 +82,13 @@ public class SearchActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
-            startActivity(new Intent(SearchActivity.this, MainActivity.class));
+            startActivity(new Intent(ProfileActivity.this, MainActivity.class));
         } else if (id == R.id.nav_user_profile) {
-            startActivity(new Intent(SearchActivity.this, ProfileActivity.class));
+
         } else if (id == R.id.nav_search) {
-            //startActivity(new Intent(SearchActivity.this, SearchActivity.class));
+            startActivity(new Intent(ProfileActivity.this, SearchActivity.class));
         } else if (id == R.id.nav_start_trip) {
-            startActivity(new Intent(SearchActivity.this, RecordTripActivity.class));
+            startActivity(new Intent(ProfileActivity.this, RecordTripActivity.class));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
