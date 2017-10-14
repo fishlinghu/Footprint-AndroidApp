@@ -36,7 +36,8 @@
         <activity
             android:name=".ProfileActivity"
             android:label="@string/title_activity_profile"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
+        <activity android:name=".CreateAccountActivity"></activity>
     </application>
 
 </manifest>
