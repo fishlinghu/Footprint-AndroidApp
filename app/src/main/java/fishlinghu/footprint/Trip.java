@@ -9,6 +9,7 @@ import java.util.ArrayList;
  */
 
 public class Trip {
+    private String trip_name;
     private ArrayList<CheckIn> check_in_list = new ArrayList<>();
 
     public void addCheckIn(Location current_location, String photo_url) {
@@ -17,5 +18,9 @@ public class Trip {
 
     public ArrayList getCheckInList() {
         return check_in_list;
+    }
+
+    public String getTripName() {
+        return trip_name;
     }
 }
