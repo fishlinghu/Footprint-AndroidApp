@@ -26,11 +26,15 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class RecordTripActivity extends AppCompatActivity {
 
@@ -42,10 +46,16 @@ public class RecordTripActivity extends AppCompatActivity {
     private static final String ALLOW_KEY = "ALLOWED";
     private static final String CAMERA_PREF = "camera_pref";
 
+    private FirebaseUser google_user;
+    private String account_email;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_trip);
+
+        google_user = FirebaseAuth.getInstance().getCurrentUser();
+        account_email = google_user.getEmail();
 
         Button button_check_in = findViewById(R.id.button_check_in);
         button_check_in.setOnClickListener(new View.OnClickListener() {
@@ -112,12 +122,14 @@ public class RecordTripActivity extends AppCompatActivity {
     }
 
     private void openCamera() {
+        // set the filepath
         File mediaFile = new File(
                 Environment.getExternalStorageDirectory().getAbsolutePath() + "/aabbcc.jpg"
         );
         Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
         fileUri = Uri.fromFile(mediaFile);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+        // open camera to capture picture
         startActivityForResult(intent, IMAGE_CAPTURE);
     }
 
@@ -317,11 +329,17 @@ public class RecordTripActivity extends AppCompatActivity {
     }
 
     private void uploadPhoto() {
+        // get local time
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
+        Calendar calendar = Calendar.getInstance();
+        String local_time = sdf.format(calendar.getTime());
+        Toast.makeText(this, local_time, Toast.LENGTH_LONG).show();
+
         FirebaseStorage storage = FirebaseStorage.getInstance();
         // Create a storage reference from our app
         StorageReference storageRef = storage.getReference();
 
-        StorageReference riversRef = storageRef.child("images/"+fileUri.getLastPathSegment());
+        StorageReference riversRef = storageRef.child("images/" + account_email + "/" + fileUri.getLastPathSegment());
         UploadTask uploadTask = riversRef.putFile(fileUri);
 
         // Register observers to listen for when the download is done or if it fails
