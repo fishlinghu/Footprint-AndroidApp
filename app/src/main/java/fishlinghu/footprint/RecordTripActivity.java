@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -23,12 +24,19 @@ import android.widget.Button;
 import android.Manifest;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
 import java.io.File;
 
 public class RecordTripActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_CAMERA = 101;
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 102;
+    private static final int MY_PERMISSIONS_REQUEST_STORAGE = 103;
     private static final int IMAGE_CAPTURE = 1;
     private Uri fileUri;
     private static final String ALLOW_KEY = "ALLOWED";
@@ -44,6 +52,29 @@ public class RecordTripActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (ContextCompat.checkSelfPermission(
                         RecordTripActivity.this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED) {
+                    // permission is not yet granted
+                    Toast.makeText(RecordTripActivity.this, "Try to get storage permission", Toast.LENGTH_LONG).show();
+
+                    if (getFromPref(RecordTripActivity.this, ALLOW_KEY)) {
+                        showSettingsAlert();
+                    } else if (ContextCompat.checkSelfPermission(RecordTripActivity.this,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        if (ActivityCompat.shouldShowRequestPermissionRationale(RecordTripActivity.this,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                            showAlert(MY_PERMISSIONS_REQUEST_STORAGE);
+                        } else {
+                            // No explanation needed, we can request the permission.
+                            ActivityCompat.requestPermissions(RecordTripActivity.this,
+                                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                    MY_PERMISSIONS_REQUEST_STORAGE);
+                        }
+                    }
+                }
+                if (ContextCompat.checkSelfPermission(
+                        RecordTripActivity.this,
                         Manifest.permission.CAMERA
                 ) != PackageManager.PERMISSION_GRANTED) {
                     // permission is not yet granted
@@ -56,7 +87,7 @@ public class RecordTripActivity extends AppCompatActivity {
                             != PackageManager.PERMISSION_GRANTED) {
                         if (ActivityCompat.shouldShowRequestPermissionRationale(RecordTripActivity.this,
                                 Manifest.permission.CAMERA)) {
-                            showAlert();
+                            showAlert(MY_PERMISSIONS_REQUEST_CAMERA);
                         } else {
                             // No explanation needed, we can request the permission.
                             ActivityCompat.requestPermissions(RecordTripActivity.this,
@@ -103,6 +134,7 @@ public class RecordTripActivity extends AppCompatActivity {
                         "Video has been saved to:\n" + fileUri,
                         Toast.LENGTH_LONG
                 ).show();
+                uploadPhoto();
             } else if (resultCode == RESULT_CANCELED) {
                 Toast.makeText(this,
                         "Video recording cancelled.",
@@ -133,10 +165,9 @@ public class RecordTripActivity extends AppCompatActivity {
         return (myPrefs.getBoolean(key, false));
     }
 
-    private void showAlert() {
+    private void showAlert(int permission_request_code) {
         AlertDialog alertDialog = new AlertDialog.Builder(this).create();
         alertDialog.setTitle("Alert");
-        alertDialog.setMessage("App needs to access the Camera.");
         alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "DONT ALLOW",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -144,17 +175,52 @@ public class RecordTripActivity extends AppCompatActivity {
                         finish();
                     }
                 });
-        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "ALLOW",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        ActivityCompat.requestPermissions(
-                                RecordTripActivity.this,
-                                new String[]{Manifest.permission.CAMERA},
-                                MY_PERMISSIONS_REQUEST_CAMERA
-                        );
-                    }
-                });
+
+        switch (permission_request_code) {
+            case MY_PERMISSIONS_REQUEST_CAMERA: {
+                alertDialog.setMessage("App needs to access the Camera.");
+                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "ALLOW",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                ActivityCompat.requestPermissions(
+                                        RecordTripActivity.this,
+                                        new String[]{Manifest.permission.CAMERA},
+                                        MY_PERMISSIONS_REQUEST_CAMERA
+                                );
+                            }
+                        });
+            }
+            case MY_PERMISSIONS_REQUEST_LOCATION: {
+                alertDialog.setMessage("App needs to access the Location.");
+                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "ALLOW",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                ActivityCompat.requestPermissions(
+                                        RecordTripActivity.this,
+                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                        MY_PERMISSIONS_REQUEST_LOCATION
+                                );
+                            }
+                        });
+            }
+            case MY_PERMISSIONS_REQUEST_STORAGE: {
+                alertDialog.setMessage("App needs to access the Storage.");
+                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "ALLOW",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                ActivityCompat.requestPermissions(
+                                        RecordTripActivity.this,
+                                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                        MY_PERMISSIONS_REQUEST_STORAGE
+                                );
+                            }
+                        });
+            }
+        }
+
         alertDialog.show();
     }
 
@@ -183,7 +249,7 @@ public class RecordTripActivity extends AppCompatActivity {
                     if (ActivityCompat.shouldShowRequestPermissionRationale
                             (this, Manifest.permission.CAMERA)) {
 
-                        showAlert();
+                        showAlert(MY_PERMISSIONS_REQUEST_CAMERA);
 
                     } else {
                         saveToPreferences(RecordTripActivity.this, ALLOW_KEY, true);
@@ -191,7 +257,24 @@ public class RecordTripActivity extends AppCompatActivity {
                 }
             }
             case MY_PERMISSIONS_REQUEST_LOCATION: {
+                if (grant_results.length > 0
+                        && grant_results[0] == PackageManager.PERMISSION_GRANTED) {}
+                else {
 
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(
+                            this,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    )) {
+
+                        showAlert(MY_PERMISSIONS_REQUEST_STORAGE);
+
+                    } else {
+                        saveToPreferences(RecordTripActivity.this, ALLOW_KEY, true);
+                    }
+                }
             }
         }
     }
@@ -219,7 +302,7 @@ public class RecordTripActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
-    public static void startInstalledAppDetailsActivity(final Activity context) {
+    private void startInstalledAppDetailsActivity(final Activity context) {
         if (context == null) {
             return;
         }
@@ -231,6 +314,29 @@ public class RecordTripActivity extends AppCompatActivity {
         i.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
         context.startActivity(i);
+    }
+
+    private void uploadPhoto() {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        // Create a storage reference from our app
+        StorageReference storageRef = storage.getReference();
+
+        StorageReference riversRef = storageRef.child("images/"+fileUri.getLastPathSegment());
+        UploadTask uploadTask = riversRef.putFile(fileUri);
+
+        // Register observers to listen for when the download is done or if it fails
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle unsuccessful uploads
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
+                @SuppressWarnings("VisibleForTests") Uri downloadUrl = taskSnapshot.getDownloadUrl();
+            }
+        });
     }
 
 }
