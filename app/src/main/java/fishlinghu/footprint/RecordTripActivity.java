@@ -19,15 +19,23 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.Manifest;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -35,6 +43,7 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Objects;
 
 public class RecordTripActivity extends AppCompatActivity {
 
@@ -46,16 +55,46 @@ public class RecordTripActivity extends AppCompatActivity {
     private static final String ALLOW_KEY = "ALLOWED";
     private static final String CAMERA_PREF = "camera_pref";
 
+    private DatabaseReference db_reference = FirebaseDatabase.getInstance().getReference();
+
     private FirebaseUser google_user;
     private String account_email;
+    private User user_data;
+
+    private Boolean trip_flag;
+    private Trip current_trip;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_trip);
 
+        // get current user and email
         google_user = FirebaseAuth.getInstance().getCurrentUser();
         account_email = google_user.getEmail();
+
+        // check if there is unfinished trip
+        db_reference = FirebaseDatabase.getInstance().getReference();
+        Query query = db_reference.child("users").child( account_email.replace(".",",") );
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    user_data = dataSnapshot.getValue(User.class);
+                    trip_flag = user_data.getUnfinishedTripFlag();
+                    if (trip_flag == false) {
+                        // start a new trip
+                        // db_reference.child("users").child(account_email.replace(".",",")).child("unfinishedTrip").setValue(new Trip());
+                    }
+                    // current_trip = (Trip) dataSnapshot.child("unfinishedTrip").getValue();
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
 
         Button button_check_in = findViewById(R.id.button_check_in);
         button_check_in.setOnClickListener(new View.OnClickListener() {

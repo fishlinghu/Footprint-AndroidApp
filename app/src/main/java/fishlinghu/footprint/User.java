@@ -6,15 +6,17 @@ package fishlinghu.footprint;
 
 public class User {
     private String name;
-    private String self_intro;
-    private String photo_url;
+    private String selfIntro;
+    private String photoUrl;
+    private Boolean unfinishedTripFlag;
 
     public User() {}
 
     public User(String name, String self_intro, String photo_url) {
         this.name = name;
-        this.self_intro = self_intro;
-        this.photo_url = photo_url;
+        this.selfIntro = self_intro;
+        this.photoUrl = photo_url;
+        this.unfinishedTripFlag = false;
     }
 
     public String getName() {
@@ -22,10 +24,12 @@ public class User {
     }
 
     public String getSelfIntro() {
-        return self_intro;
+        return selfIntro;
     }
 
     public String getPhotoUrl() {
-        return photo_url;
+        return photoUrl;
     }
+
+    public Boolean getUnfinishedTripFlag() { return unfinishedTripFlag; }
 }

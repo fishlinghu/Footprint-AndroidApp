@@ -9,18 +9,18 @@ import java.util.ArrayList;
  */
 
 public class Trip {
-    private String trip_name;
-    private ArrayList<CheckIn> check_in_list = new ArrayList<>();
+    private String tripName;
+    private ArrayList<CheckIn> checkInList = new ArrayList<>();
 
     public void addCheckIn(Location current_location, String photo_url) {
-        check_in_list.add(new CheckIn(current_location, photo_url));
+        checkInList.add(new CheckIn(current_location, photo_url));
     }
 
     public ArrayList getCheckInList() {
-        return check_in_list;
+        return checkInList;
     }
 
     public String getTripName() {
-        return trip_name;
+        return tripName;
     }
 }

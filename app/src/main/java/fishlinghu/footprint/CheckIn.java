@@ -8,11 +8,11 @@ import android.location.Location;
 
 public class CheckIn {
     private Location location;
-    private String photo_url;
+    private String photoUrl;
 
     public CheckIn(Location location, String photo_url) {
         this.location = location;
-        this.photo_url = photo_url;
+        this.photoUrl = photo_url;
     }
 
     public Location getLocation() {
@@ -20,6 +20,6 @@ public class CheckIn {
     }
 
     public String getPhotoUrl() {
-        return photo_url;
+        return photoUrl;
     }
 }
