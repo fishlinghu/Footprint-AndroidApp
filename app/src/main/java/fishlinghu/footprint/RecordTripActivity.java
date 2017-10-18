@@ -51,7 +51,7 @@ public class RecordTripActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 102;
     private static final int MY_PERMISSIONS_REQUEST_STORAGE = 103;
     private static final int IMAGE_CAPTURE = 1;
-    private Uri fileUri;
+    private Uri fileUri = Uri.parse("file://" + Environment.getExternalStorageDirectory().getAbsolutePath() + "/aabbcc.jpg");
     private static final String ALLOW_KEY = "ALLOWED";
     private static final String CAMERA_PREF = "camera_pref";
 
@@ -125,6 +125,29 @@ public class RecordTripActivity extends AppCompatActivity {
                 }
                 if (ContextCompat.checkSelfPermission(
                         RecordTripActivity.this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED) {
+                    // permission is not yet granted
+                    Toast.makeText(RecordTripActivity.this, "Try to get location permission", Toast.LENGTH_LONG).show();
+
+                    if (getFromPref(RecordTripActivity.this, ALLOW_KEY)) {
+                        showSettingsAlert();
+                    } else if (ContextCompat.checkSelfPermission(RecordTripActivity.this,
+                            Manifest.permission.ACCESS_FINE_LOCATION)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        if (ActivityCompat.shouldShowRequestPermissionRationale(RecordTripActivity.this,
+                                Manifest.permission.ACCESS_FINE_LOCATION)) {
+                            showAlert(MY_PERMISSIONS_REQUEST_LOCATION);
+                        } else {
+                            // No explanation needed, we can request the permission.
+                            ActivityCompat.requestPermissions(RecordTripActivity.this,
+                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                    MY_PERMISSIONS_REQUEST_LOCATION);
+                        }
+                    }
+                }
+                if (ContextCompat.checkSelfPermission(
+                        RecordTripActivity.this,
                         Manifest.permission.CAMERA
                 ) != PackageManager.PERMISSION_GRANTED) {
                     // permission is not yet granted
@@ -163,11 +186,7 @@ public class RecordTripActivity extends AppCompatActivity {
 
     private void openCamera() {
         // set the filepath
-        File mediaFile = new File(
-                Environment.getExternalStorageDirectory().getAbsolutePath() + "/aabbcc.jpg"
-        );
         Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-        fileUri = Uri.fromFile(mediaFile);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
         // open camera to capture picture
         startActivityForResult(intent, IMAGE_CAPTURE);
@@ -183,18 +202,20 @@ public class RecordTripActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Toast.makeText(
                         this,
-                        "Video has been saved to:\n" + fileUri,
+                        "Photo has been saved to:\n" + fileUri,
                         Toast.LENGTH_LONG
                 ).show();
                 uploadPhoto();
+                startActivity(new Intent(RecordTripActivity.this, CheckInActivity.class));
+                // finish();
             } else if (resultCode == RESULT_CANCELED) {
                 Toast.makeText(this,
-                        "Video recording cancelled.",
+                        "Photo capturing cancelled.",
                         Toast.LENGTH_LONG
                 ).show();
             } else {
                 Toast.makeText(this,
-                        "Failed to record video",
+                        "Failed to capture photo",
                         Toast.LENGTH_LONG
                 ).show();
             }
