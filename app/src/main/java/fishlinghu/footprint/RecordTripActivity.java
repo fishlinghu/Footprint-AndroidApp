@@ -84,9 +84,10 @@ public class RecordTripActivity extends AppCompatActivity {
                     trip_flag = user_data.getUnfinishedTripFlag();
                     if (trip_flag == false) {
                         // start a new trip
-                        // db_reference.child("users").child(account_email.replace(".",",")).child("unfinishedTrip").setValue(new Trip());
+                        db_reference.child("users").child(account_email.replace(".",",")).child("unfinishedTrip").setValue(new Trip());
+                        db_reference.child("users").child(account_email.replace(".",",")).child("unfinishedTripFlag").setValue(true);
                     }
-                    // current_trip = (Trip) dataSnapshot.child("unfinishedTrip").getValue();
+                    current_trip = dataSnapshot.child("unfinishedTrip").getValue(Trip.class);
                 }
             }
             @Override

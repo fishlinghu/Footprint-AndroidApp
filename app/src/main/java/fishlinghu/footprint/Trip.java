@@ -12,6 +12,10 @@ public class Trip {
     private String tripName;
     private ArrayList<CheckIn> checkInList = new ArrayList<>();
 
+    public Trip() {
+        this.tripName = "NoName";
+    }
+
     public void addCheckIn(Location current_location, String photo_url) {
         checkInList.add(new CheckIn(current_location, photo_url));
     }
