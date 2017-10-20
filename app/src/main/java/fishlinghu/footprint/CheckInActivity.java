@@ -20,7 +20,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -32,6 +34,9 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import static android.provider.UserDictionary.Words.APP_ID;
 import static fishlinghu.footprint.R.id.textView;
@@ -89,10 +94,20 @@ public class CheckInActivity extends AppCompatActivity implements
         Button button_finish = findViewById(R.id.button_finish_check_in);
         button_finish.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                // get user input
+                EditText editText_description = findViewById(R.id.editText_description);
+                String location_intro = editText_description.getText().toString();
+                // get local time
+                Calendar calendar = (Calendar) getIntent().getSerializableExtra("current_calendar");
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
+                String local_time = sdf.format(calendar.getTime());
+                Toast.makeText(CheckInActivity.this, local_time, Toast.LENGTH_LONG).show();
                 startActivity(new Intent(CheckInActivity.this, RecordTripActivity.class));
                 finish();
             }
         });
+
+
     }
 
     @Override

@@ -76,6 +76,8 @@ public class RecordTripActivity extends AppCompatActivity {
     private Boolean trip_flag;
     private Trip current_trip;
 
+    private Calendar calendar;
+
     private void checkAndRequirePermission() {
         if (ContextCompat.checkSelfPermission(
                 RecordTripActivity.this,
@@ -201,6 +203,8 @@ public class RecordTripActivity extends AppCompatActivity {
     }
 
     private void openCamera() {
+        // get time
+         calendar = Calendar.getInstance();
         // set the filepath
         Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
@@ -223,7 +227,9 @@ public class RecordTripActivity extends AppCompatActivity {
                 ).show();
                 uploadPhoto();
                 Log.d("DEBUG---", "About to start checkinactivity");
-                startActivity(new Intent(RecordTripActivity.this, CheckInActivity.class));
+                Intent next_intent = new Intent(RecordTripActivity.this, CheckInActivity.class);
+                next_intent.putExtra("current_calendar", calendar);
+                startActivity(next_intent);
                 // finish();
             } else if (resultCode == RESULT_CANCELED) {
                 Toast.makeText(this,
@@ -409,7 +415,6 @@ public class RecordTripActivity extends AppCompatActivity {
     private void uploadPhoto() {
         // get local time
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
-        Calendar calendar = Calendar.getInstance();
         String local_time = sdf.format(calendar.getTime());
         Toast.makeText(this, local_time, Toast.LENGTH_LONG).show();
 
