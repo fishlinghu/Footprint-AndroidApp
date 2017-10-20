@@ -29,7 +29,7 @@ public class CheckInActivity extends AppCompatActivity {
         Bitmap bitmap = BitmapFactory.decodeFile(filepath);
 
         Matrix matrix = new Matrix();
-        /*
+
         try {
             int rotated_degree;
             ExifInterface exif = new ExifInterface(filepath);
@@ -38,32 +38,21 @@ public class CheckInActivity extends AppCompatActivity {
             switch (orientation) {
                 case ExifInterface.ORIENTATION_ROTATE_90:
                     rotated_degree = 90;
-
+                    break;
                 case ExifInterface.ORIENTATION_ROTATE_180:
                     rotated_degree = 180;
-
+                    break;
                 case ExifInterface.ORIENTATION_ROTATE_270:
                     rotated_degree = 270;
+                    break;
                 default:
                     rotated_degree = 0;
+                    break;
             }
-            Log.d("Debug-----", Integer.toString(rotated_degree));
             matrix.postRotate(rotated_degree);
         } catch (java.io.IOException e) {
 
         }
-        */
-        String[] orientationColumn = { MediaStore.Images.ImageColumns.ORIENTATION };
-        Cursor cur = this.getContentResolver().query(fileUri, orientationColumn, null, null, null);
-        int orientation = -1;
-        if (cur == null) {
-            Log.d("Debug-----", "Cur is null");
-        }
-        if (cur != null && cur.moveToFirst()) {
-            orientation = cur.getInt(0);
-            Log.d("Debug-----", Integer.toString(orientation));
-        }
-        matrix.postRotate(orientation);
 
         ImageView image = findViewById(R.id.imageView_check_in_photo);
         Bitmap rotated_bitmap = Bitmap.createBitmap(bitmap , 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
