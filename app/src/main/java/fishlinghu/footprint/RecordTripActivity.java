@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -26,6 +27,15 @@ import android.Manifest;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -47,6 +57,8 @@ import java.util.Objects;
 
 public class RecordTripActivity extends AppCompatActivity {
 
+    protected static final int REQUEST_CHECK_SETTINGS = 0x1;
+
     private static final int MY_PERMISSIONS_REQUEST_CAMERA = 101;
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 102;
     private static final int MY_PERMISSIONS_REQUEST_STORAGE = 103;
@@ -63,6 +75,79 @@ public class RecordTripActivity extends AppCompatActivity {
 
     private Boolean trip_flag;
     private Trip current_trip;
+
+    private void checkAndRequirePermission() {
+        if (ContextCompat.checkSelfPermission(
+                RecordTripActivity.this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) != PackageManager.PERMISSION_GRANTED) {
+            // permission is not yet granted
+            Toast.makeText(RecordTripActivity.this, "Try to get storage permission", Toast.LENGTH_LONG).show();
+
+            if (getFromPref(RecordTripActivity.this, ALLOW_KEY)) {
+                showSettingsAlert();
+            } else if (ContextCompat.checkSelfPermission(RecordTripActivity.this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(RecordTripActivity.this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    showAlert(MY_PERMISSIONS_REQUEST_STORAGE);
+                } else {
+                    // No explanation needed, we can request the permission.
+                    ActivityCompat.requestPermissions(RecordTripActivity.this,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            MY_PERMISSIONS_REQUEST_STORAGE);
+                }
+            }
+        }
+        if (ContextCompat.checkSelfPermission(
+                RecordTripActivity.this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED) {
+            // permission is not yet granted
+            Toast.makeText(RecordTripActivity.this, "Try to get location permission", Toast.LENGTH_LONG).show();
+
+            if (getFromPref(RecordTripActivity.this, ALLOW_KEY)) {
+                showSettingsAlert();
+            } else if (ContextCompat.checkSelfPermission(RecordTripActivity.this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(RecordTripActivity.this,
+                        Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    showAlert(MY_PERMISSIONS_REQUEST_LOCATION);
+                } else {
+                    // No explanation needed, we can request the permission.
+                    ActivityCompat.requestPermissions(RecordTripActivity.this,
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                            MY_PERMISSIONS_REQUEST_LOCATION);
+                }
+            }
+        }
+        displayLocationSettingsRequest(this);
+        if (ContextCompat.checkSelfPermission(
+                RecordTripActivity.this,
+                Manifest.permission.CAMERA
+        ) != PackageManager.PERMISSION_GRANTED) {
+            // permission is not yet granted
+            Toast.makeText(RecordTripActivity.this, "IF", Toast.LENGTH_LONG).show();
+
+            if (getFromPref(RecordTripActivity.this, ALLOW_KEY)) {
+                showSettingsAlert();
+            } else if (ContextCompat.checkSelfPermission(RecordTripActivity.this,
+                    Manifest.permission.CAMERA)
+                    != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(RecordTripActivity.this,
+                        Manifest.permission.CAMERA)) {
+                    showAlert(MY_PERMISSIONS_REQUEST_CAMERA);
+                } else {
+                    // No explanation needed, we can request the permission.
+                    ActivityCompat.requestPermissions(RecordTripActivity.this,
+                            new String[]{Manifest.permission.CAMERA},
+                            MY_PERMISSIONS_REQUEST_CAMERA);
+                }
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,82 +181,13 @@ public class RecordTripActivity extends AppCompatActivity {
             }
         });
 
+        checkAndRequirePermission();
 
         Button button_check_in = findViewById(R.id.button_check_in);
         button_check_in.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (ContextCompat.checkSelfPermission(
-                        RecordTripActivity.this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ) != PackageManager.PERMISSION_GRANTED) {
-                    // permission is not yet granted
-                    Toast.makeText(RecordTripActivity.this, "Try to get storage permission", Toast.LENGTH_LONG).show();
-
-                    if (getFromPref(RecordTripActivity.this, ALLOW_KEY)) {
-                        showSettingsAlert();
-                    } else if (ContextCompat.checkSelfPermission(RecordTripActivity.this,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                            != PackageManager.PERMISSION_GRANTED) {
-                        if (ActivityCompat.shouldShowRequestPermissionRationale(RecordTripActivity.this,
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                            showAlert(MY_PERMISSIONS_REQUEST_STORAGE);
-                        } else {
-                            // No explanation needed, we can request the permission.
-                            ActivityCompat.requestPermissions(RecordTripActivity.this,
-                                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                    MY_PERMISSIONS_REQUEST_STORAGE);
-                        }
-                    }
-                }
-                if (ContextCompat.checkSelfPermission(
-                        RecordTripActivity.this,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED) {
-                    // permission is not yet granted
-                    Toast.makeText(RecordTripActivity.this, "Try to get location permission", Toast.LENGTH_LONG).show();
-
-                    if (getFromPref(RecordTripActivity.this, ALLOW_KEY)) {
-                        showSettingsAlert();
-                    } else if (ContextCompat.checkSelfPermission(RecordTripActivity.this,
-                            Manifest.permission.ACCESS_FINE_LOCATION)
-                            != PackageManager.PERMISSION_GRANTED) {
-                        if (ActivityCompat.shouldShowRequestPermissionRationale(RecordTripActivity.this,
-                                Manifest.permission.ACCESS_FINE_LOCATION)) {
-                            showAlert(MY_PERMISSIONS_REQUEST_LOCATION);
-                        } else {
-                            // No explanation needed, we can request the permission.
-                            ActivityCompat.requestPermissions(RecordTripActivity.this,
-                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                    MY_PERMISSIONS_REQUEST_LOCATION);
-                        }
-                    }
-                }
-                if (ContextCompat.checkSelfPermission(
-                        RecordTripActivity.this,
-                        Manifest.permission.CAMERA
-                ) != PackageManager.PERMISSION_GRANTED) {
-                    // permission is not yet granted
-                    Toast.makeText(RecordTripActivity.this, "IF", Toast.LENGTH_LONG).show();
-
-                    if (getFromPref(RecordTripActivity.this, ALLOW_KEY)) {
-                        showSettingsAlert();
-                    } else if (ContextCompat.checkSelfPermission(RecordTripActivity.this,
-                            Manifest.permission.CAMERA)
-                            != PackageManager.PERMISSION_GRANTED) {
-                        if (ActivityCompat.shouldShowRequestPermissionRationale(RecordTripActivity.this,
-                                Manifest.permission.CAMERA)) {
-                            showAlert(MY_PERMISSIONS_REQUEST_CAMERA);
-                        } else {
-                            // No explanation needed, we can request the permission.
-                            ActivityCompat.requestPermissions(RecordTripActivity.this,
-                                    new String[]{Manifest.permission.CAMERA},
-                                    MY_PERMISSIONS_REQUEST_CAMERA);
-                        }
-                    }
-                } else {
                     Toast.makeText(RecordTripActivity.this, "ELSE", Toast.LENGTH_LONG).show();
                     openCamera();
-                }
             }
         });
 
@@ -206,6 +222,7 @@ public class RecordTripActivity extends AppCompatActivity {
                         Toast.LENGTH_LONG
                 ).show();
                 uploadPhoto();
+                Log.d("DEBUG---", "About to start checkinactivity");
                 startActivity(new Intent(RecordTripActivity.this, CheckInActivity.class));
                 // finish();
             } else if (resultCode == RESULT_CANCELED) {
@@ -414,6 +431,48 @@ public class RecordTripActivity extends AppCompatActivity {
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
                 @SuppressWarnings("VisibleForTests") Uri downloadUrl = taskSnapshot.getDownloadUrl();
+            }
+        });
+    }
+
+    private void displayLocationSettingsRequest(Context context) {
+        GoogleApiClient googleApiClient = new GoogleApiClient.Builder(context)
+                .addApi(LocationServices.API).build();
+        googleApiClient.connect();
+
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(10000);
+        locationRequest.setFastestInterval(10000 / 2);
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
+        builder.setAlwaysShow(true);
+
+        PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(googleApiClient, builder.build());
+        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+            @Override
+            public void onResult(LocationSettingsResult result) {
+                final Status status = result.getStatus();
+                switch (status.getStatusCode()) {
+                    case LocationSettingsStatusCodes.SUCCESS:
+                        Log.d("DEBUG---", "All location settings are satisfied.");
+                        break;
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        Log.d("DEBUG---", "Location settings are not satisfied. Show the user a dialog to upgrade location settings ");
+
+                        try {
+                            // Show the dialog by calling startResolutionForResult(), and check the result
+                            // in onActivityResult().
+                            // why 999 works here?
+                            status.startResolutionForResult(RecordTripActivity.this, 999);
+                        } catch (IntentSender.SendIntentException e) {
+                            Log.d("DEBUG---", "PendingIntent unable to execute request.");
+                        }
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        Log.d("DEBUG---", "Location settings are inadequate, and cannot be fixed here. Dialog not created.");
+                        break;
+                }
             }
         });
     }
