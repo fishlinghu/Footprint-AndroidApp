@@ -423,7 +423,7 @@ public class RecordTripActivity extends AppCompatActivity {
         // Create a storage reference from our app
         StorageReference storageRef = storage.getReference();
 
-        StorageReference riversRef = storageRef.child("images/" + account_email + "/" + fileUri.getLastPathSegment());
+        StorageReference riversRef = storageRef.child("images/" + account_email + "/" + local_time + ".jpg");
         UploadTask uploadTask = riversRef.putFile(fileUri);
 
         // Register observers to listen for when the download is done or if it fails
