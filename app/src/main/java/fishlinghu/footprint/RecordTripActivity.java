@@ -169,8 +169,44 @@ public class RecordTripActivity extends AppCompatActivity {
         Button button_finish_trip = findViewById(R.id.button_finish_trip);
         button_finish_trip.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                startActivity(new Intent(RecordTripActivity.this, TripCompleteActivity.class));
-                finish();
+                // get current user and email
+                google_user = FirebaseAuth.getInstance().getCurrentUser();
+                account_email = google_user.getEmail();
+
+                // check if there is unfinished trip
+                db_reference = FirebaseDatabase.getInstance().getReference();
+                Query query = db_reference.child("users").child( account_email.replace(".",",") );
+                query.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            user_data = dataSnapshot.getValue(User.class);
+                            trip_flag = user_data.getUnfinishedTripFlag();
+                            if (trip_flag == false) {
+                                // start a new trip
+                                db_reference.child("users").child(account_email.replace(".",",")).child("unfinishedTrip").setValue(new Trip());
+                                db_reference.child("users").child(account_email.replace(".",",")).child("unfinishedTripFlag").setValue(true);
+                            }
+                            current_trip = dataSnapshot.child("unfinishedTrip").getValue(Trip.class);
+                            if ( current_trip.getCheckInList().isEmpty() ) {
+                                Toast.makeText(
+                                        RecordTripActivity.this,
+                                        "The trip is still empty!",
+                                        Toast.LENGTH_LONG
+                                ).show();
+                            } else {
+                                Intent next_intent = new Intent(RecordTripActivity.this, TripCompleteActivity.class);
+                                next_intent.putExtra("current_trip", current_trip);
+                                startActivity(next_intent);
+                                finish();
+                            }
+                        }
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
             }
         });
     }
@@ -219,7 +255,6 @@ public class RecordTripActivity extends AppCompatActivity {
                             // get time
                             calendar = Calendar.getInstance();
                             uploadPhoto();
-                            Log.d("DEBUG---Check In Count", Integer.toString(current_trip.getCheckInList().size()));
                             Intent next_intent = new Intent(RecordTripActivity.this, CheckInActivity.class);
                             next_intent.putExtra("current_trip", current_trip);
                             next_intent.putExtra("current_calendar", calendar);
