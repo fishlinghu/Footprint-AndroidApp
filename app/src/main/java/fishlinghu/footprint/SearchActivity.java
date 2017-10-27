@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -13,9 +14,23 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.EditText;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
 
 public class SearchActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private DatabaseReference db_reference = FirebaseDatabase.getInstance().getReference();
+    private ArrayList<Trip> trip_list = new ArrayList<>();
+    private String keyword = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +56,38 @@ public class SearchActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        Button button_search = findViewById(R.id.button_search);
+        button_search.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                trip_list.clear();
+                // get the user input keyword
+                EditText editText_keyword = findViewById(R.id.editText_search_keyword);
+                keyword = editText_keyword.getText().toString().toLowerCase();
+                db_reference.child("trips").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        // go through trips and record trips containing the keyword
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            Trip temp_trip = snapshot.getValue(Trip.class);
+                            if (temp_trip.getTripName().toLowerCase().contains(keyword)) {
+                                trip_list.add(temp_trip);
+                            }
+                        }
+                        int i = trip_list.size() - 1;
+                        while (i >= 0) {
+                            Log.d("DEBUG----", trip_list.get(i).getTripName());
+                            i = i - 1;
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
+        });
     }
 
     @Override
