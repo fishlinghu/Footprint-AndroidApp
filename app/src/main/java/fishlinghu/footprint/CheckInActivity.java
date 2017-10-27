@@ -34,6 +34,14 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -50,11 +58,22 @@ public class CheckInActivity extends AppCompatActivity implements
 
     private GoogleApiClient googleApiClient;
     private Location last_location;
+    private Trip current_trip;
+
+    private DatabaseReference db_reference = FirebaseDatabase.getInstance().getReference();
+
+    private FirebaseUser google_user;
+    private String account_email;
+    private User user_data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_check_in);
+
+        // get current user and email
+        google_user = FirebaseAuth.getInstance().getCurrentUser();
+        account_email = google_user.getEmail();
 
         String filepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/aabbcc.jpg";
         Bitmap bitmap = BitmapFactory.decodeFile(filepath);
@@ -102,6 +121,26 @@ public class CheckInActivity extends AppCompatActivity implements
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
                 String local_time = sdf.format(calendar.getTime());
                 Toast.makeText(CheckInActivity.this, local_time, Toast.LENGTH_LONG).show();
+                // get trip
+                current_trip = (Trip) getIntent().getSerializableExtra("current_trip");
+                current_trip.addCheckIn(last_location.getLatitude(), last_location.getLongitude(), "", calendar.getTime(), location_intro);
+
+                // update the unfinished trip
+                db_reference = FirebaseDatabase.getInstance().getReference();
+                Query query = db_reference.child("users").child( account_email.replace(".",",") );
+                query.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            db_reference.child("users").child(account_email.replace(".",",")).child("unfinishedTrip").setValue(current_trip);
+                        }
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
                 startActivity(new Intent(CheckInActivity.this, RecordTripActivity.class));
                 finish();
             }

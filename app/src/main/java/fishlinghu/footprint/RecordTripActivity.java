@@ -156,33 +156,6 @@ public class RecordTripActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_trip);
 
-        // get current user and email
-        google_user = FirebaseAuth.getInstance().getCurrentUser();
-        account_email = google_user.getEmail();
-
-        // check if there is unfinished trip
-        db_reference = FirebaseDatabase.getInstance().getReference();
-        Query query = db_reference.child("users").child( account_email.replace(".",",") );
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    user_data = dataSnapshot.getValue(User.class);
-                    trip_flag = user_data.getUnfinishedTripFlag();
-                    if (trip_flag == false) {
-                        // start a new trip
-                        db_reference.child("users").child(account_email.replace(".",",")).child("unfinishedTrip").setValue(new Trip());
-                        db_reference.child("users").child(account_email.replace(".",",")).child("unfinishedTripFlag").setValue(true);
-                    }
-                    current_trip = dataSnapshot.child("unfinishedTrip").getValue(Trip.class);
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
         checkAndRequirePermission();
 
         Button button_check_in = findViewById(R.id.button_check_in);
@@ -203,8 +176,6 @@ public class RecordTripActivity extends AppCompatActivity {
     }
 
     private void openCamera() {
-        // get time
-         calendar = Calendar.getInstance();
         // set the filepath
         Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
@@ -220,17 +191,47 @@ public class RecordTripActivity extends AppCompatActivity {
 
         if (requestCode == IMAGE_CAPTURE) {
             if (resultCode == RESULT_OK) {
-                Toast.makeText(
-                        this,
-                        "Photo has been saved to:\n" + fileUri,
-                        Toast.LENGTH_LONG
-                ).show();
-                uploadPhoto();
-                Log.d("DEBUG---", "About to start checkinactivity");
-                Intent next_intent = new Intent(RecordTripActivity.this, CheckInActivity.class);
-                next_intent.putExtra("current_calendar", calendar);
-                startActivity(next_intent);
-                // finish();
+                // get current user and email
+                google_user = FirebaseAuth.getInstance().getCurrentUser();
+                account_email = google_user.getEmail();
+
+                // check if there is unfinished trip
+                db_reference = FirebaseDatabase.getInstance().getReference();
+                Query query = db_reference.child("users").child( account_email.replace(".",",") );
+                query.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            user_data = dataSnapshot.getValue(User.class);
+                            trip_flag = user_data.getUnfinishedTripFlag();
+                            if (trip_flag == false) {
+                                // start a new trip
+                                db_reference.child("users").child(account_email.replace(".",",")).child("unfinishedTrip").setValue(new Trip());
+                                db_reference.child("users").child(account_email.replace(".",",")).child("unfinishedTripFlag").setValue(true);
+                            }
+                            current_trip = dataSnapshot.child("unfinishedTrip").getValue(Trip.class);
+
+                            Toast.makeText(
+                                    RecordTripActivity.this,
+                                    "Photo has been saved to:\n" + fileUri,
+                                    Toast.LENGTH_LONG
+                            ).show();
+                            // get time
+                            calendar = Calendar.getInstance();
+                            uploadPhoto();
+                            Log.d("DEBUG---Check In Count", Integer.toString(current_trip.getCheckInList().size()));
+                            Intent next_intent = new Intent(RecordTripActivity.this, CheckInActivity.class);
+                            next_intent.putExtra("current_trip", current_trip);
+                            next_intent.putExtra("current_calendar", calendar);
+                            startActivity(next_intent);
+                            finish();
+                        }
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
             } else if (resultCode == RESULT_CANCELED) {
                 Toast.makeText(this,
                         "Photo capturing cancelled.",
