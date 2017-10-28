@@ -45,7 +45,11 @@
             android:label="@string/title_activity_profile"
             android:theme="@style/AppTheme" />
         <activity android:name=".CreateAccountActivity" />
-        <activity android:name=".CheckInActivity"></activity>
+        <activity android:name=".CheckInActivity" />
+        <activity
+            android:name=".TripActivity"
+            android:label="@string/title_activity_trip"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

@@ -33,6 +33,7 @@ public class SearchActivity extends AppCompatActivity
 
     private DatabaseReference db_reference = FirebaseDatabase.getInstance().getReference();
     private ArrayList<Trip> trip_list = new ArrayList<>();
+    private ArrayList<String> trip_key_list = new ArrayList<>();
     private String keyword = "";
 
     private ArrayList<Integer> view_id_list = new ArrayList<>();
@@ -74,6 +75,7 @@ public class SearchActivity extends AppCompatActivity
                     i = i - 1;
                 }
                 trip_list.clear();
+                trip_key_list.clear();
                 view_id_list.clear();
                 // get the user input keyword
                 EditText editText_keyword = findViewById(R.id.editText_search_keyword);
@@ -86,21 +88,26 @@ public class SearchActivity extends AppCompatActivity
                             Trip temp_trip = snapshot.getValue(Trip.class);
                             if (temp_trip.getTripName().toLowerCase().contains(keyword)) {
                                 trip_list.add(temp_trip);
+                                trip_key_list.add(snapshot.getKey());
                             }
                         }
                         int i = trip_list.size() - 1;
                         while (i >= 0) {
+                            final Trip temp_trip = trip_list.get(i);
                             Button temp_button = new Button(getApplicationContext());
                             int view_id = genID();
                             view_id_list.add(view_id);
                             temp_button.setId( view_id );
-                            temp_button.setText(trip_list.get(i).getTripName());
+                            temp_button.setText(temp_trip.getTripName());
                             temp_button.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                             ll.addView(temp_button);
                             temp_button.setOnClickListener(new View.OnClickListener(){
                                 @Override
                                 public void onClick(View v) {
-
+                                    Intent next_intent = new Intent(SearchActivity.this, TripActivity.class);
+                                    next_intent.putExtra("trip", temp_trip);
+                                    startActivity(next_intent);
+                                    finish();
                                 }
                             });
                             i = i - 1;
