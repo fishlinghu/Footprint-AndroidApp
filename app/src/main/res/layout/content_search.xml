@@ -1,40 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/ll_search"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:baselineAligned="false"
+    android:weightSum="1"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="fishlinghu.footprint.SearchActivity"
-    tools:showIn="@layout/app_bar_search">
+    tools:showIn="@layout/app_bar_search"
+    android:orientation="vertical">
 
     <EditText
         android:id="@+id/editText_search_keyword"
-        android:layout_width="0dp"
-        android:layout_height="51dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        app:layout_constraintRight_toLeftOf="@+id/button_search"
-        tools:layout_constraintTop_creator="1"
-        tools:layout_constraintRight_creator="1"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="16dp"
-        tools:layout_constraintLeft_creator="1"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_width="294dp"
+        android:layout_height="68dp"
+        android:layout_toStartOf="@+id/button_search"
+        android:inputType="textPersonName" />
 
     <Button
         android:id="@+id/button_search"
-        android:layout_width="67dp"
-        android:layout_height="45dp"
-        android:background="@drawable/places_ic_search"
-        tools:layout_constraintTop_creator="1"
-        tools:layout_constraintRight_creator="1"
-        tools:layout_constraintBottom_creator="1"
-        app:layout_constraintBottom_toBottomOf="@+id/editText_search_keyword"
-        android:layout_marginEnd="52dp"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/editText_search_keyword"
-        android:layout_marginRight="52dp"
-        app:layout_constraintVertical_bias="0.0" />
-</android.support.constraint.ConstraintLayout>
+        android:layout_width="73dp"
+        android:layout_height="67dp"
+        android:background="@drawable/places_ic_search" />
+
+</LinearLayout>

@@ -2,6 +2,7 @@ package fishlinghu.footprint;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
@@ -16,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -24,6 +26,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SearchActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -31,6 +34,8 @@ public class SearchActivity extends AppCompatActivity
     private DatabaseReference db_reference = FirebaseDatabase.getInstance().getReference();
     private ArrayList<Trip> trip_list = new ArrayList<>();
     private String keyword = "";
+
+    private ArrayList<Integer> view_id_list = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,10 +62,19 @@ public class SearchActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        final LinearLayout ll = findViewById(R.id.ll_search);
+
         Button button_search = findViewById(R.id.button_search);
         button_search.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                // remove previous search result
+                int i = view_id_list.size() - 1;
+                while (i >= 0) {
+                    ll.removeView(findViewById(view_id_list.get(i)));
+                    i = i - 1;
+                }
                 trip_list.clear();
+                view_id_list.clear();
                 // get the user input keyword
                 EditText editText_keyword = findViewById(R.id.editText_search_keyword);
                 keyword = editText_keyword.getText().toString().toLowerCase();
@@ -76,7 +90,19 @@ public class SearchActivity extends AppCompatActivity
                         }
                         int i = trip_list.size() - 1;
                         while (i >= 0) {
-                            Log.d("DEBUG----", trip_list.get(i).getTripName());
+                            Button temp_button = new Button(getApplicationContext());
+                            int view_id = genID();
+                            view_id_list.add(view_id);
+                            temp_button.setId( view_id );
+                            temp_button.setText(trip_list.get(i).getTripName());
+                            temp_button.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                            ll.addView(temp_button);
+                            temp_button.setOnClickListener(new View.OnClickListener(){
+                                @Override
+                                public void onClick(View v) {
+
+                                }
+                            });
                             i = i - 1;
                         }
                     }
@@ -88,6 +114,20 @@ public class SearchActivity extends AppCompatActivity
                 });
             }
         });
+    }
+
+    private int genID(){
+        AtomicInteger sNextGeneratedId = new AtomicInteger(1);
+        for (;;) {
+            final int result = sNextGeneratedId.get();
+            // aapt-generated IDs have the high byte nonzero; clamp to the range under that.
+            int newValue = result + 1;
+            if (newValue > 0x00FFFFFF)
+                newValue = 1; // Roll over to 1, not 0.
+            if (sNextGeneratedId.compareAndSet(result, newValue)) {
+                return result;
+            }
+        }
     }
 
     @Override
