@@ -122,7 +122,7 @@ public class CheckInActivity extends AppCompatActivity implements
                 String local_time = sdf.format(calendar.getTime());
                 Toast.makeText(CheckInActivity.this, local_time, Toast.LENGTH_LONG).show();
                 // generate photo url
-                String photo_url = "images/" + account_email + "/" + local_time + ".jpg";
+                String photo_url = local_time + ".jpg";
                 // get trip
                 current_trip = (Trip) getIntent().getSerializableExtra("current_trip");
                 current_trip.addCheckIn(last_location.getLatitude(), last_location.getLongitude(), photo_url, calendar.getTime(), location_intro);

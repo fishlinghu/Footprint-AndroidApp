@@ -11,6 +11,8 @@ import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -63,6 +65,7 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Objects;
 
@@ -78,7 +81,11 @@ public class RecordTripActivity extends AppCompatActivity implements OnMapReadyC
     private static final String ALLOW_KEY = "ALLOWED";
     private static final String CAMERA_PREF = "camera_pref";
 
+    final long SIXTEEN_MEGABYTE = 1024 * 1024 * 16;
+
     private DatabaseReference db_reference = FirebaseDatabase.getInstance().getReference();
+    private FirebaseStorage storage = FirebaseStorage.getInstance();
+    private StorageReference storage_reference;
 
     private FirebaseUser google_user;
     private String account_email;
@@ -180,6 +187,10 @@ public class RecordTripActivity extends AppCompatActivity implements OnMapReadyC
         google_user = FirebaseAuth.getInstance().getCurrentUser();
         account_email = google_user.getEmail();
 
+        storage_reference = storage.getReferenceFromUrl("gs://footprint-aff8d.appspot.com")
+                 .child("images")
+                 .child(account_email);
+
         // check if there is unfinished trip
         db_reference = FirebaseDatabase.getInstance().getReference();
 
@@ -258,20 +269,42 @@ public class RecordTripActivity extends AppCompatActivity implements OnMapReadyC
     }
 
     private void plotMap() {
+        final ArrayList<Marker> marker_list = new ArrayList<>();
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+        // add markers to the map
         for (CheckIn temp_check_in : current_trip.getCheckInList()) {
             LatLng temp_lat_lng = new LatLng( temp_check_in.getLatitude(), temp_check_in.getLongitude());
-            Bitmap location_photo;
             Marker temp_marker = google_map.addMarker(new MarkerOptions()
                     .position(temp_lat_lng));
-                    //.setIcon(BitmapDescriptorFactory.fromBitmap());
+            marker_list.add(temp_marker);
             builder.include(temp_marker.getPosition());
+        }
+
+        // replace the icon as photo
+        int i = 0;
+        while (i < marker_list.size()) {
+            final int j = i;
+            StorageReference photo_ref = storage_reference.child(
+                    current_trip.getCheckInList().get(i).getPhotoUrl()
+            );
+            photo_ref.getBytes(SIXTEEN_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                @Override
+                public void onSuccess(byte[] bytes) {
+                    marker_list.get(j).setIcon(BitmapDescriptorFactory.fromBitmap(
+                            getResizedBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length))
+                            )
+                    );
+                }
+            });
+
+            i = i + 1;
         }
 
         // center the map to view all marker
         if (current_trip.getCheckInList().size() > 0) {
             LatLngBounds bounds = builder.build();
-            int padding = 10; // offset from edges of the map in pixels
+            int padding = 50; // offset from edges of the map in pixels
             CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
             google_map.moveCamera(cu);
         } else {
@@ -281,6 +314,13 @@ public class RecordTripActivity extends AppCompatActivity implements OnMapReadyC
                     Toast.LENGTH_LONG
             ).show();
         }
+    }
+
+    private Bitmap getResizedBitmap(Bitmap bm) {
+        // "RECREATE" THE NEW BITMAP
+        Bitmap resized_bitmap = Bitmap.createScaledBitmap(bm, bm.getWidth()/15, bm.getHeight()/15, false);
+        bm.recycle();
+        return resized_bitmap;
     }
 
     private void openCamera() {
