@@ -19,7 +19,7 @@
         app:layout_constraintLeft_toLeftOf="parent" />
 
     <com.google.android.gms.maps.MapView
-        android:id="@+id/mapView"
+        android:id="@+id/mapView_record_trip"
         android:layout_width="0dp"
         android:layout_height="396dp"
         android:layout_marginBottom="60dp"

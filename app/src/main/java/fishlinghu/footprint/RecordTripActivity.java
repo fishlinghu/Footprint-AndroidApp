@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -36,6 +37,16 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -55,7 +66,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Objects;
 
-public class RecordTripActivity extends AppCompatActivity {
+public class RecordTripActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
@@ -77,6 +88,9 @@ public class RecordTripActivity extends AppCompatActivity {
     private Trip current_trip;
 
     private Calendar calendar;
+
+    private GoogleMap google_map;
+    private MapView map_view;
 
     private void checkAndRequirePermission() {
         if (ContextCompat.checkSelfPermission(
@@ -158,6 +172,39 @@ public class RecordTripActivity extends AppCompatActivity {
 
         checkAndRequirePermission();
 
+        map_view = findViewById(R.id.mapView_record_trip);
+        map_view.onCreate(savedInstanceState);
+        map_view.getMapAsync(this);
+
+        // get current user and email
+        google_user = FirebaseAuth.getInstance().getCurrentUser();
+        account_email = google_user.getEmail();
+
+        // check if there is unfinished trip
+        db_reference = FirebaseDatabase.getInstance().getReference();
+
+        Query query = db_reference.child("users").child( account_email.replace(".",",") );
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    user_data = dataSnapshot.getValue(User.class);
+                    trip_flag = user_data.getUnfinishedTripFlag();
+                    if (trip_flag == false) {
+                        // start a new trip
+                        db_reference.child("users").child(account_email.replace(".",",")).child("unfinishedTrip").setValue(new Trip());
+                        db_reference.child("users").child(account_email.replace(".",",")).child("unfinishedTripFlag").setValue(true);
+                    }
+                    current_trip = dataSnapshot.child("unfinishedTrip").getValue(Trip.class);
+                    plotMap();
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
         Button button_check_in = findViewById(R.id.button_check_in);
         button_check_in.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -169,12 +216,6 @@ public class RecordTripActivity extends AppCompatActivity {
         Button button_finish_trip = findViewById(R.id.button_finish_trip);
         button_finish_trip.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // get current user and email
-                google_user = FirebaseAuth.getInstance().getCurrentUser();
-                account_email = google_user.getEmail();
-
-                // check if there is unfinished trip
-                db_reference = FirebaseDatabase.getInstance().getReference();
                 Query query = db_reference.child("users").child( account_email.replace(".",",") );
                 query.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -211,6 +252,37 @@ public class RecordTripActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onMapReady(GoogleMap map) {
+        google_map = map;
+    }
+
+    private void plotMap() {
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        for (CheckIn temp_check_in : current_trip.getCheckInList()) {
+            LatLng temp_lat_lng = new LatLng( temp_check_in.getLatitude(), temp_check_in.getLongitude());
+            Bitmap location_photo;
+            Marker temp_marker = google_map.addMarker(new MarkerOptions()
+                    .position(temp_lat_lng));
+                    //.setIcon(BitmapDescriptorFactory.fromBitmap());
+            builder.include(temp_marker.getPosition());
+        }
+
+        // center the map to view all marker
+        if (current_trip.getCheckInList().size() > 0) {
+            LatLngBounds bounds = builder.build();
+            int padding = 10; // offset from edges of the map in pixels
+            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+            google_map.moveCamera(cu);
+        } else {
+            Toast.makeText(
+                    RecordTripActivity.this,
+                    "No Marker",
+                    Toast.LENGTH_LONG
+            ).show();
+        }
+    }
+
     private void openCamera() {
         // set the filepath
         Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
@@ -224,7 +296,6 @@ public class RecordTripActivity extends AppCompatActivity {
             int resultCode,
             Intent data
     ) {
-
         if (requestCode == IMAGE_CAPTURE) {
             if (resultCode == RESULT_OK) {
                 // get current user and email
@@ -516,6 +587,30 @@ public class RecordTripActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        map_view.onResume();
+        super.onResume();
+    }
+
+    @Override
+    public final void onDestroy() {
+        map_view.onDestroy();
+        super.onDestroy();
+    }
+
+    @Override
+    public final void onLowMemory() {
+        map_view.onLowMemory();
+        super.onLowMemory();
+    }
+
+    @Override
+    public final void onPause() {
+        map_view.onPause();
+        super.onPause();
     }
 
 }

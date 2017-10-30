@@ -22,7 +22,7 @@ public class Trip implements Serializable{
         checkInList.add(new CheckIn(latitude, longitude, photo_url, date_time, description));
     }
 
-    public ArrayList getCheckInList() {
+    public ArrayList<CheckIn> getCheckInList() {
         return checkInList;
     }
 
