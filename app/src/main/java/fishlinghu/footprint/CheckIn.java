@@ -19,13 +19,13 @@ public class CheckIn implements Serializable {
 
     public CheckIn() {}
 
-    public CheckIn(Double latitude, Double longitude, String photo_url, Date dateTime, String description) {
+    public CheckIn(Double latitude, Double longitude, String photo_url, Date dateTime, String description, String locationName) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.photoUrl = photo_url;
         this.dateTime = dateTime;
         this.description = description;
-        this.locationName = "";
+        this.locationName = locationName;
     }
 
     public void setLocationName(String locationName) {

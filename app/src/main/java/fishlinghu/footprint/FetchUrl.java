@@ -57,7 +57,6 @@ public class FetchUrl extends AsyncTask<String, Void, String> {
 
         // Invokes the thread for parsing the JSON data
         parserTask.execute(result);
-
     }
 
     private String downloadUrl(String strUrl) throws IOException {
