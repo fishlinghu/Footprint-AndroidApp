@@ -34,6 +34,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -65,6 +66,8 @@ public class CheckInActivity extends AppCompatActivity implements
     private FirebaseUser google_user;
     private String account_email;
     private User user_data;
+
+    private String location_name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +113,10 @@ public class CheckInActivity extends AppCompatActivity implements
 
         googleApiClient = new GoogleApiClient.Builder(this, this, this).addApi(LocationServices.API).build();
 
+        // get location name
+        // String request_url = getPlaceNameUrl(last_location.getLatitude(), last_location.getLongitude());
+        // Log.d("DEBUG---URL:", request_url);
+
         Button button_finish = findViewById(R.id.button_finish_check_in);
         button_finish.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -149,6 +156,18 @@ public class CheckInActivity extends AppCompatActivity implements
         });
 
 
+    }
+
+    private String getPlaceNameUrl(Double latitude, Double longitude){
+
+        // Building the parameters to the web service
+        String parameters = latitude + "," + longitude;
+
+        // Building the url to the web service
+        String url = "https://maps.googleapis.com/maps/api/place/search/json?location=" + parameters +
+                "&rankby=distance&types=establishment&sensor=false&key=AIzaSyDQxVaohRnN3im7rkkxIDs9_kuyc062B7o&language=en&region=US";
+
+        return url;
     }
 
     @Override

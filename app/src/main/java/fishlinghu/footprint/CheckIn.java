@@ -15,6 +15,7 @@ public class CheckIn implements Serializable {
     private String photoUrl;
     private Date dateTime;
     private String description;
+    private String locationName;
 
     public CheckIn() {}
 
@@ -24,6 +25,11 @@ public class CheckIn implements Serializable {
         this.photoUrl = photo_url;
         this.dateTime = dateTime;
         this.description = description;
+        this.locationName = "";
+    }
+
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
     }
 
     public Double getLatitude() { return latitude; }
@@ -37,4 +43,6 @@ public class CheckIn implements Serializable {
     public Date getDateTime() { return dateTime; }
 
     public String getDescription() { return description; }
+
+    public String getLocationName() { return  locationName; }
 }
