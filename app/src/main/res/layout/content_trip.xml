@@ -8,4 +8,18 @@
     tools:context="fishlinghu.footprint.TripActivity"
     tools:showIn="@layout/app_bar_trip">
 
+    <TextView
+        android:id="@+id/textView_trip_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="16dp" />
+
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/mapView_trip"
+        android:layout_width="344dp"
+        android:layout_height="300dp"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="43dp" />
 </android.support.constraint.ConstraintLayout>

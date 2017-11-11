@@ -3,27 +3,47 @@ package fishlinghu.footprint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.util.Log;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
+
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+
+import static fishlinghu.footprint.RecordTripActivity.plotMap;
 
 public class TripActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
     private Trip current_trip;
+    private DatabaseReference db_reference = FirebaseDatabase.getInstance().getReference();
+    private FirebaseStorage storage = FirebaseStorage.getInstance();
+
+    private GoogleMap google_map;
+    private MapView map_view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trip);
+
+        map_view = findViewById(R.id.mapView_trip);
+        map_view.onCreate(savedInstanceState);
+        map_view.getMapAsync(this);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -47,6 +67,41 @@ public class TripActivity extends AppCompatActivity
 
         current_trip = (Trip) getIntent().getSerializableExtra("trip");
         Log.d("DEBUG---", current_trip.getTripName());
+
+        TextView textView_trip_name = findViewById(R.id.textView_trip_name);
+        textView_trip_name.setText(current_trip.getTripName());
+
+
+    }
+
+    @Override
+    public void onMapReady(GoogleMap map) {
+        google_map = map;
+        plotMap(current_trip, google_map, TripActivity.this);
+    }
+
+    @Override
+    protected void onResume() {
+        map_view.onResume();
+        super.onResume();
+    }
+
+    @Override
+    public final void onDestroy() {
+        map_view.onDestroy();
+        super.onDestroy();
+    }
+
+    @Override
+    public final void onLowMemory() {
+        map_view.onLowMemory();
+        super.onLowMemory();
+    }
+
+    @Override
+    public final void onPause() {
+        map_view.onPause();
+        super.onPause();
     }
 
     @Override

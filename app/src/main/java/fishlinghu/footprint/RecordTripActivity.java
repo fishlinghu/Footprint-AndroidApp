@@ -3,6 +3,7 @@
 /* http://www.techotopia.com/index.php/Video_Recording_and_Image_Capture_on_Android_6_using_Camera_Intents */
 package fishlinghu.footprint;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,11 +12,8 @@ import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.Matrix;
 import android.net.Uri;
-import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
@@ -24,12 +22,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.Manifest;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -46,12 +41,10 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -66,21 +59,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
 
 public class RecordTripActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -220,7 +201,7 @@ public class RecordTripActivity extends AppCompatActivity implements OnMapReadyC
                         db_reference.child("users").child(account_email.replace(".",",")).child("unfinishedTripFlag").setValue(true);
                     }
                     current_trip = dataSnapshot.child("unfinishedTrip").getValue(Trip.class);
-                    plotMap();
+                    plotMap(current_trip, google_map, RecordTripActivity.this);
                 }
             }
             @Override
@@ -281,7 +262,7 @@ public class RecordTripActivity extends AppCompatActivity implements OnMapReadyC
         google_map = map;
     }
 
-    private void plotMap() {
+    static public void plotMap(Trip current_trip, GoogleMap google_map, Context context) {
         final ArrayList<Marker> marker_list = new ArrayList<>();
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
@@ -336,14 +317,14 @@ public class RecordTripActivity extends AppCompatActivity implements OnMapReadyC
             google_map.moveCamera(cu);
         } else {
             Toast.makeText(
-                    RecordTripActivity.this,
+                    context,
                     "No Marker",
                     Toast.LENGTH_LONG
             ).show();
         }
     }
 
-    private Bitmap getResizedBitmap(Bitmap bm) {
+    static public Bitmap getResizedBitmap(Bitmap bm) {
         // "RECREATE" THE NEW BITMAP
         Bitmap resized_bitmap = Bitmap.createScaledBitmap(bm, bm.getWidth()/15, bm.getHeight()/15, false);
         bm.recycle();
@@ -351,7 +332,7 @@ public class RecordTripActivity extends AppCompatActivity implements OnMapReadyC
     }
 
 
-    private String getDirectionsUrl(LatLng origin, LatLng dest){
+    static public String getDirectionsUrl(LatLng origin, LatLng dest){
 
         // Origin of route
         String str_origin = "origin="+origin.latitude+","+origin.longitude;
