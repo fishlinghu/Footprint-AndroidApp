@@ -24,6 +24,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -259,6 +260,8 @@ public class CheckInActivity extends AppCompatActivity implements
 
         protected void setLocationName (String temp) {
             location_name = temp;
+            TextView text_view_at = findViewById(R.id.textView_at);
+            text_view_at.setText("- at " + location_name);
             Log.d("Location Name In", location_name);
         }
 
