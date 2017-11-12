@@ -107,14 +107,24 @@ public class TripActivity extends AppCompatActivity
         TextView textView_trip_name = findViewById(R.id.textView_trip_name);
         textView_trip_name.setText(current_trip.getTripName());
 
-        // render photos below the map
+        // render photo buttons below the map
         final ArrayList<ImageView> image_view_list = new ArrayList<>();
         LinearLayout ll = findViewById(R.id.ll_trip_in);
         int i = 0;
         while (i < current_trip.getCheckInList().size()) {
+            final int j = i;
             ImageView temp_image_view = new ImageView(getApplicationContext());
             temp_image_view.setId(genID());
             ll.addView(temp_image_view);
+            temp_image_view.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    Intent next_intent = new Intent(TripActivity.this, LocationActivity.class);
+                    next_intent.putExtra("current_check_in", current_trip.getCheckInList().get(j));
+                    startActivity(next_intent);
+                    finish();
+                }
+            });
             image_view_list.add(temp_image_view);
             i = i + 1;
         }

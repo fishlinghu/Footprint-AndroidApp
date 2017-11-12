@@ -1,9 +1,11 @@
 package fishlinghu.footprint;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.view.Gravity;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -13,9 +15,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class LocationActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private CheckIn current_check_in;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +49,21 @@ public class LocationActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        current_check_in = (CheckIn) getIntent().getSerializableExtra("current_check_in");
+
+        TextView textView_location_name = findViewById(R.id.textView_location_name);
+        textView_location_name.setText(current_check_in.getLocationName());
+        textView_location_name.setGravity(Gravity.CENTER_HORIZONTAL);
+
+        TextView textView_location_description = findViewById(R.id.textView_location_description);
+        textView_location_description.setText(current_check_in.getDescription());
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+        String visiting_time = sdf.format(current_check_in.getDateTime());
+        TextView textView_visiting_time = findViewById(R.id.textView_visiting_time);
+        textView_visiting_time.setText("Visited on " + visiting_time);
+        textView_visiting_time.setGravity(Gravity.CENTER_HORIZONTAL);
     }
 
     @Override
