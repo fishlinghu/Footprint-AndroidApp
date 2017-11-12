@@ -201,7 +201,9 @@ public class RecordTripActivity extends AppCompatActivity implements OnMapReadyC
                         db_reference.child("users").child(account_email.replace(".",",")).child("unfinishedTripFlag").setValue(true);
                     }
                     current_trip = dataSnapshot.child("unfinishedTrip").getValue(Trip.class);
-                    plotMap(current_trip, google_map, RecordTripActivity.this);
+                    if (current_trip != null) {
+                        plotMap(current_trip, google_map, RecordTripActivity.this);
+                    }
                 }
             }
             @Override

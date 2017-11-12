@@ -1,6 +1,8 @@
 package fishlinghu.footprint;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -14,16 +16,33 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Semaphore;
+
+import static fishlinghu.footprint.RecordTripActivity.getResizedBitmap;
 import static fishlinghu.footprint.RecordTripActivity.plotMap;
+import static fishlinghu.footprint.SearchActivity.genID;
 
 public class TripActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
@@ -31,9 +50,18 @@ public class TripActivity extends AppCompatActivity
     private Trip current_trip;
     private DatabaseReference db_reference = FirebaseDatabase.getInstance().getReference();
     private FirebaseStorage storage = FirebaseStorage.getInstance();
+    private StorageReference storage_reference;
+
+    private FirebaseUser google_user;
+    private String account_email;
+    private User user_data;
 
     private GoogleMap google_map;
     private MapView map_view;
+
+    long SIXTEEN_MEGABYTE = 1024 * 1024 * 16;
+
+    private Task<Void> all_task;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +71,14 @@ public class TripActivity extends AppCompatActivity
         map_view = findViewById(R.id.mapView_trip);
         map_view.onCreate(savedInstanceState);
         map_view.getMapAsync(this);
+
+        // get current user and email
+        google_user = FirebaseAuth.getInstance().getCurrentUser();
+        account_email = google_user.getEmail();
+
+        storage_reference = storage.getReferenceFromUrl("gs://footprint-aff8d.appspot.com")
+                .child("images")
+                .child(account_email);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -71,7 +107,39 @@ public class TripActivity extends AppCompatActivity
         TextView textView_trip_name = findViewById(R.id.textView_trip_name);
         textView_trip_name.setText(current_trip.getTripName());
 
+        // render photos below the map
+        final ArrayList<ImageView> image_view_list = new ArrayList<>();
+        LinearLayout ll = findViewById(R.id.ll_trip_in);
+        int i = 0;
+        while (i < current_trip.getCheckInList().size()) {
+            ImageView temp_image_view = new ImageView(getApplicationContext());
+            temp_image_view.setId(genID());
+            ll.addView(temp_image_view);
+            image_view_list.add(temp_image_view);
+            i = i + 1;
+        }
 
+        // download all photos
+        final ArrayList<Bitmap> photo_list = new ArrayList<>();
+        i = 0;
+        for (CheckIn temp_check_in : current_trip.getCheckInList()) {
+            photo_list.add(null);
+            final int j = i;
+            StorageReference photo_ref = storage_reference.child(
+                    temp_check_in.getPhotoUrl()
+            );
+            photo_ref.getBytes(SIXTEEN_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                @Override
+                public void onSuccess(byte[] bytes) {
+                    Bitmap temp_bitmap = getResizedBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+                    photo_list.set(j, temp_bitmap);
+                    ImageView temp_image_view = image_view_list.get(j);
+                    temp_image_view.setImageBitmap(temp_bitmap);
+                    temp_image_view.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                }
+            });
+            i = i + 1;
+        }
     }
 
     @Override
