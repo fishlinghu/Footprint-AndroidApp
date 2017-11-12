@@ -24,6 +24,7 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDQxVaohRnN3im7rkkxIDs9_kuyc062B7o" />
+
         <activity
             android:name=".LoginActivity"
             android:label="@string/title_activity_login"
@@ -52,6 +53,10 @@
         <activity
             android:name=".TripActivity"
             android:label="@string/title_activity_trip"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".LocationActivity"
+            android:label="@string/title_activity_location"
             android:theme="@style/AppTheme"></activity>
     </application>
 
