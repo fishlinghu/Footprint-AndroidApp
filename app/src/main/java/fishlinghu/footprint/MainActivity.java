@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.widget.SearchView;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -13,9 +14,31 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.Toast;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+
+import static fishlinghu.footprint.SearchActivity.genID;
+import static java.security.AccessController.getContext;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private DatabaseReference db_reference = FirebaseDatabase.getInstance().getReference();
+    private ArrayList<Trip> trip_list = new ArrayList<>();
+    private ArrayList<String> trip_key_list = new ArrayList<>();
+    private String keyword = "";
+
+    private ArrayList<Integer> view_id_list = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +64,70 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        final LinearLayout ll = findViewById(R.id.ll_main);
+
+        SearchView searchView = findViewById(R.id.search_view_1);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // remove previous search result
+                int i = view_id_list.size() - 1;
+                while (i >= 0) {
+                    ll.removeView(findViewById(view_id_list.get(i)));
+                    i = i - 1;
+                }
+                trip_list.clear();
+                trip_key_list.clear();
+                view_id_list.clear();
+                // get the user input keyword
+                keyword = query.toString().toLowerCase();
+                db_reference.child("trips").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        // go through trips and record trips containing the keyword
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            Trip temp_trip = snapshot.getValue(Trip.class);
+                            if (temp_trip.getTripName().toLowerCase().contains(keyword)) {
+                                trip_list.add(temp_trip);
+                                trip_key_list.add(snapshot.getKey());
+                            }
+                        }
+                        int i = trip_list.size() - 1;
+                        while (i >= 0) {
+                            final Trip temp_trip = trip_list.get(i);
+                            Button temp_button = new Button(getApplicationContext());
+                            int view_id = genID();
+                            view_id_list.add(view_id);
+                            temp_button.setId( view_id );
+                            temp_button.setText(temp_trip.getTripName());
+                            temp_button.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                            ll.addView(temp_button);
+                            temp_button.setOnClickListener(new View.OnClickListener(){
+                                @Override
+                                public void onClick(View v) {
+                                    Intent next_intent = new Intent(MainActivity.this, TripActivity.class);
+                                    next_intent.putExtra("trip", temp_trip);
+                                    startActivity(next_intent);
+                                    finish();
+                                }
+                            });
+                            i = i - 1;
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+                return true;
+            }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
     }
 
     @Override
