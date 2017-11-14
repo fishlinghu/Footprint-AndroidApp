@@ -177,8 +177,6 @@ public class SearchActivity extends AppCompatActivity
             startActivity(new Intent(SearchActivity.this, MainActivity.class));
         } else if (id == R.id.nav_user_profile) {
             startActivity(new Intent(SearchActivity.this, ProfileActivity.class));
-        } else if (id == R.id.nav_search) {
-            //startActivity(new Intent(SearchActivity.this, SearchActivity.class));
         } else if (id == R.id.nav_start_trip) {
             startActivity(new Intent(SearchActivity.this, RecordTripActivity.class));
         }

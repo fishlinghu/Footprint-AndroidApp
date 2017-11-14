@@ -199,8 +199,6 @@ public class LocationActivity extends AppCompatActivity
             startActivity(new Intent(LocationActivity.this, MainActivity.class));
         } else if (id == R.id.nav_user_profile) {
             startActivity(new Intent(LocationActivity.this, ProfileActivity.class));
-        } else if (id == R.id.nav_search) {
-            startActivity(new Intent(LocationActivity.this, SearchActivity.class));
         } else if (id == R.id.nav_start_trip) {
             startActivity(new Intent(LocationActivity.this, RecordTripActivity.class));
         }

@@ -186,8 +186,6 @@ public class ProfileActivity extends AppCompatActivity
             startActivity(new Intent(ProfileActivity.this, MainActivity.class));
         } else if (id == R.id.nav_user_profile) {
 
-        } else if (id == R.id.nav_search) {
-            startActivity(new Intent(ProfileActivity.this, SearchActivity.class));
         } else if (id == R.id.nav_start_trip) {
             startActivity(new Intent(ProfileActivity.this, RecordTripActivity.class));
         }

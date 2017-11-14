@@ -224,8 +224,6 @@ public class TripActivity extends AppCompatActivity
             startActivity(new Intent(TripActivity.this, MainActivity.class));
         } else if (id == R.id.nav_user_profile) {
             startActivity(new Intent(TripActivity.this, ProfileActivity.class));
-        } else if (id == R.id.nav_search) {
-            startActivity(new Intent(TripActivity.this, SearchActivity.class));
         } else if (id == R.id.nav_start_trip) {
             startActivity(new Intent(TripActivity.this, RecordTripActivity.class));
         }
