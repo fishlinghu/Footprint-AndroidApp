@@ -19,6 +19,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -171,7 +173,11 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_home) {
 
         } else if (id == R.id.nav_user_profile) {
-            startActivity(new Intent(MainActivity.this, ProfileActivity.class));
+            FirebaseUser google_user = FirebaseAuth.getInstance().getCurrentUser();
+            String account_email = google_user.getEmail();
+            Intent next_intent = new Intent(MainActivity.this, ProfileActivity.class);
+            next_intent.putExtra("account_email", account_email);
+            startActivity(next_intent);
         } else if (id == R.id.nav_start_trip) {
             startActivity(new Intent(MainActivity.this, RecordTripActivity.class));
         }

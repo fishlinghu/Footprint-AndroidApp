@@ -58,8 +58,7 @@ public class TripActivity extends AppCompatActivity
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private StorageReference storage_reference;
 
-    private FirebaseUser google_user;
-    private String account_email;
+    private String author_email;
     private User user_data;
 
     private GoogleMap google_map;
@@ -100,26 +99,25 @@ public class TripActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         current_trip = (Trip) getIntent().getSerializableExtra("trip");
-        account_email = current_trip.getAuthorEmail();
+        author_email = current_trip.getAuthorEmail();
 
         storage_reference = storage.getReferenceFromUrl("gs://footprint-aff8d.appspot.com")
                 .child("images")
-                .child(account_email);
+                .child(author_email);
 
         db_reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                user_data = dataSnapshot.child("users").child(account_email.replace(".", ",")).getValue(User.class);
+                user_data = dataSnapshot.child("users").child(author_email.replace(".", ",")).getValue(User.class);
 
                 TextView textView_author_name = findViewById(R.id.textView_author_name);
-                textView_author_name.setText("Published by: " + user_data.getName());
+                textView_author_name.setText(user_data.getName());
                 textView_author_name.setOnClickListener(new View.OnClickListener(){
                     @Override
                     public void onClick(View v) {
                         Intent next_intent = new Intent(TripActivity.this, ProfileActivity.class);
-                        // next_intent.putExtra("trip", temp_trip);
+                        next_intent.putExtra("account_email", author_email);
                         startActivity(next_intent);
-                        finish();
                     }
                 });
             }
@@ -147,8 +145,8 @@ public class TripActivity extends AppCompatActivity
                 public void onClick(View v) {
                     Intent next_intent = new Intent(TripActivity.this, LocationActivity.class);
                     next_intent.putExtra("current_check_in", current_trip.getCheckInList().get(j));
+                    next_intent.putExtra("author_email", author_email);
                     startActivity(next_intent);
-                    finish();
                 }
             });
             image_view_list.add(temp_image_view);
@@ -249,7 +247,11 @@ public class TripActivity extends AppCompatActivity
         if (id == R.id.nav_home) {
             startActivity(new Intent(TripActivity.this, MainActivity.class));
         } else if (id == R.id.nav_user_profile) {
-            startActivity(new Intent(TripActivity.this, ProfileActivity.class));
+            FirebaseUser google_user = FirebaseAuth.getInstance().getCurrentUser();
+            String account_email = google_user.getEmail();
+            Intent next_intent = new Intent(TripActivity.this, ProfileActivity.class);
+            next_intent.putExtra("account_email", account_email);
+            startActivity(next_intent);
         } else if (id == R.id.nav_start_trip) {
             startActivity(new Intent(TripActivity.this, RecordTripActivity.class));
         }

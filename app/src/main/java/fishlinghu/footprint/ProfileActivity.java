@@ -50,7 +50,7 @@ public class ProfileActivity extends AppCompatActivity
 
         // get current user and email
         google_user = FirebaseAuth.getInstance().getCurrentUser();
-        account_email = google_user.getEmail();
+        account_email = (String) getIntent().getSerializableExtra("account_email");
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -117,7 +117,6 @@ public class ProfileActivity extends AppCompatActivity
                             Intent next_intent = new Intent(ProfileActivity.this, TripActivity.class);
                             next_intent.putExtra("trip", temp_trip);
                             startActivity(next_intent);
-                            finish();
                         }
                     });
                 }

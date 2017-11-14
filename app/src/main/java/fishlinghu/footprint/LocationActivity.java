@@ -46,8 +46,7 @@ public class LocationActivity extends AppCompatActivity
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private StorageReference storage_reference;
 
-    private FirebaseUser google_user;
-    private String account_email;
+    private String author_email;
 
     long SIXTEEN_MEGABYTE = 1024 * 1024 * 16;
 
@@ -110,13 +109,10 @@ public class LocationActivity extends AppCompatActivity
         SimpleDateFormat sdf_2 = new SimpleDateFormat("yyyyMMdd-HHmm");
         final String filename = sdf_2.format(current_check_in.getDateTime()) + ".jpg";
 
-        // get current user and email, get photo from firebase
-        google_user = FirebaseAuth.getInstance().getCurrentUser();
-        account_email = google_user.getEmail();
-
+        author_email = (String) getIntent().getSerializableExtra("author_email");
         storage_reference = storage.getReferenceFromUrl("gs://footprint-aff8d.appspot.com")
                 .child("images")
-                .child(account_email);
+                .child(author_email);
 
         StorageReference photo_ref = storage_reference.child(
                 current_check_in.getPhotoUrl()
@@ -198,7 +194,11 @@ public class LocationActivity extends AppCompatActivity
         if (id == R.id.nav_home) {
             startActivity(new Intent(LocationActivity.this, MainActivity.class));
         } else if (id == R.id.nav_user_profile) {
-            startActivity(new Intent(LocationActivity.this, ProfileActivity.class));
+            FirebaseUser google_user = FirebaseAuth.getInstance().getCurrentUser();
+            String account_email = google_user.getEmail();
+            Intent next_intent = new Intent(LocationActivity.this, ProfileActivity.class);
+            next_intent.putExtra("account_email", account_email);
+            startActivity(next_intent);
         } else if (id == R.id.nav_start_trip) {
             startActivity(new Intent(LocationActivity.this, RecordTripActivity.class));
         }
