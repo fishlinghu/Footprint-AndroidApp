@@ -36,6 +36,7 @@ public class TripCompleteActivity extends AppCompatActivity {
         google_user = FirebaseAuth.getInstance().getCurrentUser();
         account_email = google_user.getEmail();
         current_trip = (Trip) getIntent().getSerializableExtra("current_trip");
+        current_trip.setAuthorEmail(account_email);
 
         Button button_publish = findViewById(R.id.button_publish);
         button_publish.setOnClickListener(new View.OnClickListener() {

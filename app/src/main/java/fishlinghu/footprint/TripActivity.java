@@ -21,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -30,13 +31,18 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 
@@ -72,14 +78,6 @@ public class TripActivity extends AppCompatActivity
         map_view.onCreate(savedInstanceState);
         map_view.getMapAsync(this);
 
-        // get current user and email
-        google_user = FirebaseAuth.getInstance().getCurrentUser();
-        account_email = google_user.getEmail();
-
-        storage_reference = storage.getReferenceFromUrl("gs://footprint-aff8d.appspot.com")
-                .child("images")
-                .child(account_email);
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -102,7 +100,35 @@ public class TripActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         current_trip = (Trip) getIntent().getSerializableExtra("trip");
-        Log.d("DEBUG---", current_trip.getTripName());
+        account_email = current_trip.getAuthorEmail();
+
+        storage_reference = storage.getReferenceFromUrl("gs://footprint-aff8d.appspot.com")
+                .child("images")
+                .child(account_email);
+
+        db_reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                user_data = dataSnapshot.child("users").child(account_email.replace(".", ",")).getValue(User.class);
+
+                TextView textView_author_name = findViewById(R.id.textView_author_name);
+                textView_author_name.setText("Published by: " + user_data.getName());
+                textView_author_name.setOnClickListener(new View.OnClickListener(){
+                    @Override
+                    public void onClick(View v) {
+                        Intent next_intent = new Intent(TripActivity.this, ProfileActivity.class);
+                        // next_intent.putExtra("trip", temp_trip);
+                        startActivity(next_intent);
+                        finish();
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         TextView textView_trip_name = findViewById(R.id.textView_trip_name);
         textView_trip_name.setText(current_trip.getTripName());

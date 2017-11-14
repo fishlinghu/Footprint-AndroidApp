@@ -11,6 +11,7 @@ import java.util.Date;
  */
 
 public class Trip implements Serializable{
+    private String authorEmail;
     private String tripName;
     private ArrayList<CheckIn> checkInList = new ArrayList<>();
 
@@ -30,8 +31,17 @@ public class Trip implements Serializable{
         return tripName;
     }
 
+    public String getAuthorEmail() {
+        return authorEmail;
+    }
+
     public void setTripName(String tripName) {
         this.tripName = tripName;
+        return;
+    }
+
+    public void setAuthorEmail(String authorEmail) {
+        this.authorEmail = authorEmail;
         return;
     }
 }
