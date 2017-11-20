@@ -3,9 +3,8 @@ package fishlinghu.footprint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -13,12 +12,29 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.Iterator;
+import java.util.Map;
 
 public class FollowActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private DatabaseReference db_reference = FirebaseDatabase.getInstance().getReference();
+
+    private FirebaseUser google_user;
+    private String account_email;
+    private User user_data; // user data shown by profile page
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +60,49 @@ public class FollowActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        // get current user and email
+        google_user = FirebaseAuth.getInstance().getCurrentUser();
+        account_email = google_user.getEmail();
+
+        db_reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                user_data = dataSnapshot.child("users").child(account_email.replace(".", ",")).getValue(User.class);
+                addButtonsForFollowingPeople();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void addButtonsForFollowingPeople() {
+        LinearLayout ll = findViewById(R.id.ll_followed_by_you);
+        Iterator<Map.Entry<String, String>> it = user_data.getFollowingMap().entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, String> pair = it.next();
+            final String following_account_email = pair.getKey();
+            String following_name = pair.getValue();
+
+            Button temp_button = new Button(getApplicationContext());
+            temp_button.setText(following_name);
+            temp_button.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    Intent next_intent = new Intent(FollowActivity.this, ProfileActivity.class);
+                    next_intent.putExtra("account_email", following_account_email);
+                    startActivity(next_intent);
+                }
+            });
+            ll.addView(temp_button);
+        }
+    }
+
+    private void addButtonsForNewTrips() {
+
     }
 
     @Override
