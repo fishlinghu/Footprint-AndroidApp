@@ -3,10 +3,8 @@ package fishlinghu.footprint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.util.Log;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -14,11 +12,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -27,11 +27,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import com.bumptech.glide.Glide;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ProfileActivity extends AppCompatActivity
@@ -40,16 +39,23 @@ public class ProfileActivity extends AppCompatActivity
     private DatabaseReference db_reference = FirebaseDatabase.getInstance().getReference();
 
     private FirebaseUser google_user;
-    private String account_email;
-    private User user_data;
+    private String account_email; // account email of the user shown by profile page
+    private String current_user_account_email; // account email of current user
+    private User user_data; // user data shown by profile page
+    private Boolean is_followed;
+    private ArrayList<SimpleUser> follower_list;
+    private Button button_follow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
+        button_follow = findViewById(R.id.button_follow);
+
         // get current user and email
         google_user = FirebaseAuth.getInstance().getCurrentUser();
+        current_user_account_email = google_user.getEmail();
         account_email = (String) getIntent().getSerializableExtra("account_email");
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -77,6 +83,50 @@ public class ProfileActivity extends AppCompatActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 user_data = dataSnapshot.child("users").child(account_email.replace(".", ",")).getValue(User.class);
+                final String current_user_name = dataSnapshot
+                        .child("users")
+                        .child(current_user_account_email.replace(".", ","))
+                        .child("name")
+                        .getValue(String.class);
+
+                if (Objects.equals(current_user_account_email, account_email)) {
+                    // hide the follow button if user is viewing his own profile
+                    button_follow.setVisibility(View.GONE);
+                } else {
+                    // user is viewing other's profile
+                    is_followed = user_data.getFollowerMap().containsKey(current_user_account_email.replace(".", ","));
+                    if (is_followed) {
+                        button_follow.setText("unfollow");
+                    } else {
+                        button_follow.setText("follow");
+                    }
+                    button_follow.setOnClickListener(new View.OnClickListener(){
+                        @Override
+                        public void onClick(View v) {
+                            if (is_followed) {
+                                // change from following to not following
+                                is_followed = false;
+                                button_follow.setText("follow");
+                                // remove current user from the follower list
+                                db_reference.child("users")
+                                        .child(account_email.replace(".", ","))
+                                        .child("followerMap")
+                                        .child(current_user_account_email.replace(".", ","))
+                                        .removeValue();
+                            } else {
+                                // change from not following to following
+                                is_followed = true;
+                                button_follow.setText("unfollow");
+                                // add current user to the follower list
+                                db_reference.child("users")
+                                        .child(account_email.replace(".", ","))
+                                        .child("followerMap")
+                                        .child(current_user_account_email.replace(".", ","))
+                                        .setValue(current_user_name);
+                            }
+                        }
+                    });
+                }
 
                 // populate user information in the profile page
                 TextView temp_textView;

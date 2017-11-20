@@ -1,5 +1,8 @@
 package fishlinghu.footprint;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by fishlinghu on 10/13/17.
  */
@@ -9,6 +12,10 @@ public class User {
     private String selfIntro;
     private String photoUrl;
     private Boolean unfinishedTripFlag;
+    // mapping of account email to name of followers
+    private Map<String, String> followerMap = new HashMap<String, String>();
+    // private ArrayList<String> followerList = new ArrayList<>();
+    // private ArrayList<SimpleUser> followingList = new ArrayList<>();
 
     public User() {}
 
@@ -31,5 +38,17 @@ public class User {
         return photoUrl;
     }
 
-    public Boolean getUnfinishedTripFlag() { return unfinishedTripFlag; }
+    public Boolean getUnfinishedTripFlag() {
+        return unfinishedTripFlag;
+    }
+
+    public Map<String, String> getFollowerMap() {
+        return followerMap;
+    }
+
+    /*
+    public ArrayList<SimpleUser> getFollowingList() {
+        return followingList;
+    }
+    */
 }
