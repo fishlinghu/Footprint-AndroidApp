@@ -7,21 +7,20 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,9 +33,6 @@ import com.google.firebase.storage.StorageReference;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import static fishlinghu.footprint.RecordTripActivity.getResizedBitmap;
 
 public class LocationActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -201,6 +197,8 @@ public class LocationActivity extends AppCompatActivity
             startActivity(next_intent);
         } else if (id == R.id.nav_start_trip) {
             startActivity(new Intent(LocationActivity.this, RecordTripActivity.class));
+        } else if (id == R.id.nav_follow) {
+            startActivity(new Intent(LocationActivity.this, FollowActivity.class));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

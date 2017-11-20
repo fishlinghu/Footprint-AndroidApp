@@ -237,6 +237,8 @@ public class ProfileActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_start_trip) {
             startActivity(new Intent(ProfileActivity.this, RecordTripActivity.class));
+        } else if (id == R.id.nav_follow) {
+            startActivity(new Intent(ProfileActivity.this, FollowActivity.class));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

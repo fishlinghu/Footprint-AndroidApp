@@ -1,5 +1,6 @@
 package fishlinghu.footprint;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -12,6 +13,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class FollowActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -80,17 +84,17 @@ public class FollowActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        if (id == R.id.nav_home) {
+            startActivity(new Intent(FollowActivity.this, MainActivity.class));
+        } else if (id == R.id.nav_user_profile) {
+            FirebaseUser google_user = FirebaseAuth.getInstance().getCurrentUser();
+            String account_email = google_user.getEmail();
+            Intent next_intent = new Intent(FollowActivity.this, ProfileActivity.class);
+            next_intent.putExtra("account_email", account_email);
+            startActivity(next_intent);
+        } else if (id == R.id.nav_start_trip) {
+            startActivity(new Intent(FollowActivity.this, RecordTripActivity.class));
+        } else if (id == R.id.nav_follow) {
 
         }
 
