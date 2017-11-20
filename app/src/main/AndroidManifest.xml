@@ -57,6 +57,10 @@
         <activity
             android:name=".LocationActivity"
             android:label="@string/title_activity_location"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".FollowActivity"
+            android:label="@string/title_activity_follow"
             android:theme="@style/AppTheme"></activity>
     </application>
 
