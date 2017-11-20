@@ -14,8 +14,8 @@ public class User {
     private Boolean unfinishedTripFlag;
     // mapping of account email to name of followers
     private Map<String, String> followerMap = new HashMap<String, String>();
-    // private ArrayList<String> followerList = new ArrayList<>();
-    // private ArrayList<SimpleUser> followingList = new ArrayList<>();
+    // mapping of account email to name of people followed
+    private Map<String, String> followingMap = new HashMap<String, String>();
 
     public User() {}
 
@@ -46,9 +46,7 @@ public class User {
         return followerMap;
     }
 
-    /*
-    public ArrayList<SimpleUser> getFollowingList() {
-        return followingList;
+    public Map<String, String> getFollowingMap() {
+        return followingMap;
     }
-    */
 }

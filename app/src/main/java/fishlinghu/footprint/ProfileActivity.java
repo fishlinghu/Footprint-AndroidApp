@@ -113,6 +113,12 @@ public class ProfileActivity extends AppCompatActivity
                                         .child("followerMap")
                                         .child(current_user_account_email.replace(".", ","))
                                         .removeValue();
+                                // remove this account from current user's following list
+                                db_reference.child("users")
+                                        .child(current_user_account_email.replace(".", ","))
+                                        .child("followingMap")
+                                        .child(account_email.replace(".", ","))
+                                        .removeValue();
                             } else {
                                 // change from not following to following
                                 is_followed = true;
@@ -123,6 +129,11 @@ public class ProfileActivity extends AppCompatActivity
                                         .child("followerMap")
                                         .child(current_user_account_email.replace(".", ","))
                                         .setValue(current_user_name);
+                                db_reference.child("users")
+                                        .child(current_user_account_email.replace(".", ","))
+                                        .child("followingMap")
+                                        .child(account_email.replace(".", ","))
+                                        .setValue(user_data.getName());
                             }
                         }
                     });
