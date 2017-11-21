@@ -13,9 +13,11 @@ public class User {
     private String photoUrl;
     private Boolean unfinishedTripFlag;
     // mapping of account email to name of followers
-    private Map<String, String> followerMap = new HashMap<String, String>();
+    private Map<String, String> followerMap = new HashMap<>();
     // mapping of account email to name of people followed
-    private Map<String, String> followingMap = new HashMap<String, String>();
+    private Map<String, String> followingMap = new HashMap<>();
+    // mapping of trip key to author name
+    private Map<String, String> newTripMap = new HashMap<>();
 
     public User() {}
 
@@ -48,5 +50,9 @@ public class User {
 
     public Map<String, String> getFollowingMap() {
         return followingMap;
+    }
+
+    public Map<String, String> getNewTripMap() {
+        return newTripMap;
     }
 }

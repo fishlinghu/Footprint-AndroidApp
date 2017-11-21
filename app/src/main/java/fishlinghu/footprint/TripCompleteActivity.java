@@ -19,6 +19,8 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Iterator;
+import java.util.Map;
 
 public class TripCompleteActivity extends AppCompatActivity {
 
@@ -26,6 +28,7 @@ public class TripCompleteActivity extends AppCompatActivity {
     private String account_email;
     private DatabaseReference db_reference = FirebaseDatabase.getInstance().getReference();
     private Trip current_trip;
+    private User user_data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +50,7 @@ public class TripCompleteActivity extends AppCompatActivity {
 
                 current_trip.setTripName(trip_name);
 
-                db_reference.child("trips").addListenerForSingleValueEvent(new ValueEventListener() {
+                db_reference.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists()) {
@@ -58,6 +61,20 @@ public class TripCompleteActivity extends AppCompatActivity {
                             user_ref.child("trips").child(trip_key).setValue("");
                             user_ref.child("unfinishedTrip").setValue(null);
                             user_ref.child("unfinishedTripFlag").setValue(false);
+
+                            // also send the trip to followers
+                            user_data = dataSnapshot.child("users").child(account_email.replace(".", ",")).getValue(User.class);
+                            Iterator<Map.Entry<String, String>> it = user_data.getFollowerMap().entrySet().iterator();
+                            while (it.hasNext()) {
+                                Map.Entry<String, String> pair = it.next();
+                                String follower_account_email = pair.getKey();
+                                db_reference
+                                        .child("users")
+                                        .child(follower_account_email)
+                                        .child("newTripMap")
+                                        .child(trip_key)
+                                        .setValue(user_data.getName());
+                            }
                         }
                         startActivity(new Intent(TripCompleteActivity.this, MainActivity.class));
                         finish();

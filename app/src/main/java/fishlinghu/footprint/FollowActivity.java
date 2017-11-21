@@ -61,6 +61,22 @@ public class FollowActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        // implement clear all button
+        Button button_clear = findViewById(R.id.button_clear_new_trip);
+        button_clear.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                // remove data in the database
+                db_reference.child("users")
+                        .child(account_email.replace(".", ","))
+                        .child("newTripMap")
+                        .removeValue();
+                // remove buttons
+                LinearLayout ll = findViewById(R.id.ll_new_trip);
+                ll.removeAllViews();
+            }
+        });
+
         // get current user and email
         google_user = FirebaseAuth.getInstance().getCurrentUser();
         account_email = google_user.getEmail();
@@ -70,6 +86,7 @@ public class FollowActivity extends AppCompatActivity
             public void onDataChange(DataSnapshot dataSnapshot) {
                 user_data = dataSnapshot.child("users").child(account_email.replace(".", ",")).getValue(User.class);
                 addButtonsForFollowingPeople();
+                addButtonsForNewTrips();
             }
 
             @Override
@@ -102,7 +119,39 @@ public class FollowActivity extends AppCompatActivity
     }
 
     private void addButtonsForNewTrips() {
+        final LinearLayout ll = findViewById(R.id.ll_new_trip);
+        Iterator<Map.Entry<String, String>> it = user_data.getNewTripMap().entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, String> pair = it.next();
+            final String trip_key = pair.getKey();
+            final String author_name = pair.getValue();
 
+
+            // get the trip data
+            db_reference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    final Trip current_trip = dataSnapshot.child("trips").child(trip_key).getValue(Trip.class);;
+
+                    Button temp_button = new Button(getApplicationContext());
+                    temp_button.setText(current_trip.getTripName() + " by " + author_name);
+                    temp_button.setOnClickListener(new View.OnClickListener(){
+                        @Override
+                        public void onClick(View v) {
+                            Intent next_intent = new Intent(FollowActivity.this, TripActivity.class);
+                            next_intent.putExtra("trip", current_trip);
+                            startActivity(next_intent);
+                        }
+                    });
+                    ll.addView(temp_button);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
     }
 
     @Override
