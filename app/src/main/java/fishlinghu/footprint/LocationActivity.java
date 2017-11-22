@@ -101,6 +101,10 @@ public class LocationActivity extends AppCompatActivity
         textView_visiting_time.setText("Visited on " + visiting_time);
         textView_visiting_time.setGravity(Gravity.CENTER_HORIZONTAL);
 
+        // set recommended staying time
+        TextView textView_staying_time = findViewById(R.id.textView_recommended_staying_time);
+        textView_staying_time.setText(current_check_in.getStayingTime());
+
         // make the filename for photo
         SimpleDateFormat sdf_2 = new SimpleDateFormat("yyyyMMdd-HHmm");
         final String filename = sdf_2.format(current_check_in.getDateTime()) + ".jpg";

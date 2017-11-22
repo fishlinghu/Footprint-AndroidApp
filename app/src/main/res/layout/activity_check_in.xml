@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="fishlinghu.footprint.CheckInActivity">
+    android:orientation="vertical"
+    tools:context="fishlinghu.footprint.CheckInActivity"
+    tools:layout_editor_absoluteX="0dp"
+    tools:layout_editor_absoluteY="25dp">
 
     <ImageView
         android:id="@+id/imageView_check_in_photo"
         android:layout_width="250dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="9dp"
+        android:layout_height="250dp"
+        android:layout_marginBottom="10dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:scaleType="centerInside"
         android:adjustViewBounds="true"
+        android:scaleType="centerInside"
         app:layout_constraintBottom_toTopOf="@+id/textView_at"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -27,59 +30,76 @@
         android:id="@+id/textView_at"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:inputType="textMultiLine"
         android:text=" - at"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_constraintBottom_creator="1"
-        tools:layout_constraintLeft_creator="1"
-        tools:layout_constraintTop_creator="1" />
+        android:layout_centerVertical="true"
+        android:layout_alignStart="@+id/imageView_check_in_photo" />
 
     <EditText
         android:id="@+id/editText_description"
-        android:layout_width="348dp"
-        android:layout_height="154dp"
-        android:layout_marginBottom="9dp"
-        android:layout_marginEnd="18dp"
-        android:layout_marginStart="18dp"
-        android:layout_marginTop="10dp"
+        android:layout_width="350dp"
+        android:layout_height="116dp"
         android:ems="10"
         android:inputType="textMultiLine"
-        app:layout_constraintBottom_toTopOf="@+id/button_finish_check_in"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView_at"
-        app:layout_constraintVertical_bias="0.636"
-        tools:layout_constraintBottom_creator="1"
-        tools:layout_constraintLeft_creator="1"
-        tools:layout_constraintRight_creator="1"
-        tools:layout_constraintTop_creator="1" />
+        android:layout_below="@+id/textView9"
+        android:layout_alignStart="@+id/textView9" />
 
     <Button
         android:id="@+id/button_finish_check_in"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Finish"
-        tools:layout_constraintRight_creator="1"
-        tools:layout_constraintBottom_creator="1"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        tools:layout_constraintLeft_creator="1"
-        android:layout_marginBottom="9dp"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="17dp" />
+
+    <TextView
+        android:id="@+id/textView13"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/textView_at"
+        android:layout_below="@+id/textView_at"
+        android:layout_marginTop="10dp"
+        android:text="Recommended staying time:" />
+
+    <Spinner
+        android:id="@+id/spinner_hours"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView13"
+        android:layout_alignStart="@+id/textView13" />
+
+    <Spinner
+        android:id="@+id/spinner_mins"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/textView14"
+        android:layout_toEndOf="@+id/textView17" />
+
+    <TextView
+        android:id="@+id/textView14"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="mins"
+        android:layout_alignBaseline="@+id/textView17"
+        android:layout_alignBottom="@+id/textView17"
+        android:layout_toEndOf="@+id/spinner_mins" />
+
+    <TextView
+        android:id="@+id/textView17"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/spinner_hours"
+        android:layout_toEndOf="@+id/spinner_hours"
+        android:text="hours" />
 
     <TextView
         android:id="@+id/textView9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="-24dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginTop="10dp"
         android:text="Introduce this amazing place!"
-        app:layout_constraintBottom_toTopOf="@+id/editText_description"
-        app:layout_constraintLeft_toLeftOf="parent"
-        tools:layout_constraintBottom_creator="1"
-        tools:layout_constraintLeft_creator="1" />
-</android.support.constraint.ConstraintLayout>
+        android:layout_below="@+id/spinner_hours"
+        android:layout_alignStart="@+id/spinner_hours" />
+
+</RelativeLayout>

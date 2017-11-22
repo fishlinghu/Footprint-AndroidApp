@@ -16,9 +16,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -65,10 +67,17 @@ public class CheckInActivity extends AppCompatActivity implements
 
     protected String location_name = "";
 
+    private Spinner spinner_hours;
+    private Spinner spinner_mins;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_check_in);
+
+        // configure the spinner
+        spinner_hours = configureSpinner((Spinner)findViewById(R.id.spinner_hours), R.array.number_of_hours);
+        spinner_mins = configureSpinner((Spinner)findViewById(R.id.spinner_mins), R.array.number_of_minutes);
 
         // get current user and email
         google_user = FirebaseAuth.getInstance().getCurrentUser();
@@ -124,7 +133,15 @@ public class CheckInActivity extends AppCompatActivity implements
                 String photo_url = local_time + ".jpg";
                 // get trip
                 current_trip = (Trip) getIntent().getSerializableExtra("current_trip");
-                current_trip.addCheckIn(last_location.getLatitude(), last_location.getLongitude(), photo_url, calendar.getTime(), location_intro, location_name);
+                current_trip.addCheckIn(
+                        last_location.getLatitude(),
+                        last_location.getLongitude(),
+                        photo_url,
+                        calendar.getTime(),
+                        location_intro,
+                        location_name,
+                        getStayingTimeFromSpinner()
+                );
 
                 // update the unfinished trip
                 db_reference = FirebaseDatabase.getInstance().getReference();
@@ -148,6 +165,24 @@ public class CheckInActivity extends AppCompatActivity implements
         });
 
 
+    }
+
+    private Spinner configureSpinner(Spinner spinner, int array_id) {
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                array_id, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        return spinner;
+    }
+
+    private String getStayingTimeFromSpinner() {
+        String hour_selected = spinner_hours.getSelectedItem().toString();
+        String min_selected = spinner_mins.getSelectedItem().toString();
+        if (Objects.equals(hour_selected, "0")) {
+            return min_selected + " mins";
+        } else {
+            return hour_selected + " hrs, " + min_selected + " mins";
+        }
     }
 
     private void showLocationName() {
@@ -279,8 +314,8 @@ public class CheckInActivity extends AppCompatActivity implements
                 == PackageManager.PERMISSION_GRANTED) {
             last_location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
             // last_location could be null here if the location service is not turned on
-            Log.d("DEBUG--- Latitude", Double.toString(last_location.getLatitude()));
-            Log.d("DEBUG--- Longitude", Double.toString(last_location.getLongitude()));
+            // Log.d("DEBUG--- Latitude", Double.toString(last_location.getLatitude()));
+            // Log.d("DEBUG--- Longitude", Double.toString(last_location.getLongitude()));
             if (Objects.equals("", location_name)) {
                 showLocationName();
             }

@@ -41,8 +41,8 @@
         android:inputType="textMultiLine"
         tools:layout_editor_absoluteX="18dp"
         tools:layout_editor_absoluteY="385dp"
-        android:layout_marginTop="20dp"
-        android:layout_below="@+id/textView_location_name"
+        android:layout_marginTop="19dp"
+        android:layout_below="@+id/textView15"
         android:layout_alignStart="@+id/textView_visiting_time" />
 
     <Button
@@ -60,6 +60,22 @@
         android:layout_height="wrap_content"
         android:layout_alignStart="@+id/textView_location_name"
         android:layout_below="@+id/textView_location_name"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/textView15"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/textView_location_description"
+        android:layout_below="@+id/textView_visiting_time"
+        android:text="Recommended staying time:" />
+
+    <TextView
+        android:id="@+id/textView_recommended_staying_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/textView_location_description"
+        android:layout_below="@+id/textView15"
         android:text="TextView" />
 
 </RelativeLayout>

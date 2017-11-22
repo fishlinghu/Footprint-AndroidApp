@@ -1,6 +1,7 @@
 package fishlinghu.footprint;
 
 import android.location.Location;
+import android.util.Log;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -16,16 +17,18 @@ public class CheckIn implements Serializable {
     private Date dateTime;
     private String description;
     private String locationName;
+    private String stayingTime;
 
     public CheckIn() {}
 
-    public CheckIn(Double latitude, Double longitude, String photo_url, Date dateTime, String description, String locationName) {
+    public CheckIn(Double latitude, Double longitude, String photo_url, Date dateTime, String description, String locationName, String stayingTime) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.photoUrl = photo_url;
         this.dateTime = dateTime;
         this.description = description;
         this.locationName = locationName;
+        this.stayingTime = stayingTime;
     }
 
     public void setLocationName(String locationName) {
@@ -44,5 +47,9 @@ public class CheckIn implements Serializable {
 
     public String getDescription() { return description; }
 
-    public String getLocationName() { return  locationName; }
+    public String getLocationName() { return locationName; }
+
+    public String getStayingTime() {
+        return stayingTime;
+    }
 }
