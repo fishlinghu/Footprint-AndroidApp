@@ -1,10 +1,10 @@
 package fishlinghu.footprint;
 
-import android.location.Location;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by fishlinghu on 10/16/17.
@@ -14,6 +14,8 @@ public class Trip implements Serializable{
     private String authorEmail;
     private String tripName;
     private ArrayList<CheckIn> checkInList = new ArrayList<>();
+    // maping of email of voter to an empty string
+    private Map<String, String> voterMap = new HashMap<>();
 
     public Trip() {
         this.tripName = "NoName";
@@ -43,5 +45,18 @@ public class Trip implements Serializable{
     public void setAuthorEmail(String authorEmail) {
         this.authorEmail = authorEmail;
         return;
+    }
+
+    // methods for votes related functions
+    public Map<String, String> getVoterMap() {
+        return voterMap;
+    }
+
+    public int getVoteCount() {
+        return voterMap.size();
+    }
+
+    public boolean checkVoter(String voter_email) {
+        return voterMap.containsKey(voter_email);
     }
 }

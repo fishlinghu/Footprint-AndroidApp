@@ -153,6 +153,7 @@ public class ProfileActivity extends AppCompatActivity
 
                 // find all finished trips of an user
                 ArrayList<Trip> trip_list = new ArrayList<>();
+                ArrayList<String> trip_key_list = new ArrayList<>();
                 Map<String, String> trip_key =
                         (HashMap<String, String>) dataSnapshot
                                 .child("users")
@@ -162,11 +163,15 @@ public class ProfileActivity extends AppCompatActivity
                     trip_list.add(
                             dataSnapshot.child("trips").child(key).getValue(Trip.class)
                     );
+                    trip_key_list.add(key);
                 }
 
                 // show the found trips on user's profile
                 LinearLayout ll = findViewById(R.id.ll_profile_finished_trip);
-                for (final Trip temp_trip : trip_list) {
+                for (int i = 0; i < trip_list.size(); ++i) {
+                    final Trip temp_trip = trip_list.get(i);
+                    final String temp_trip_key = trip_key_list.get(i);
+
                     Button temp_button = new Button(getApplicationContext());
                     temp_button.setId( genID() );
                     temp_button.setText(temp_trip.getTripName());
@@ -177,6 +182,7 @@ public class ProfileActivity extends AppCompatActivity
                         public void onClick(View v) {
                             Intent next_intent = new Intent(ProfileActivity.this, TripActivity.class);
                             next_intent.putExtra("trip", temp_trip);
+                            next_intent.putExtra("trip_key", temp_trip_key);
                             startActivity(next_intent);
                         }
                     });

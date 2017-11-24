@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity
                         int i = trip_list.size() - 1;
                         while (i >= 0) {
                             final Trip temp_trip = trip_list.get(i);
+                            final String temp_trip_key = trip_key_list.get(i);
                             Button temp_button = new Button(getApplicationContext());
                             int view_id = genID();
                             view_id_list.add(view_id);
@@ -107,6 +108,7 @@ public class MainActivity extends AppCompatActivity
                                 public void onClick(View v) {
                                     Intent next_intent = new Intent(MainActivity.this, TripActivity.class);
                                     next_intent.putExtra("trip", temp_trip);
+                                    next_intent.putExtra("trip_key", temp_trip_key);
                                     startActivity(next_intent);
                                     finish();
                                 }

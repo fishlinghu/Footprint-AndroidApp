@@ -15,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -44,12 +45,15 @@ public class TripActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
     private Trip current_trip;
+    private String current_trip_key;
+
     private DatabaseReference db_reference = FirebaseDatabase.getInstance().getReference();
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private StorageReference storage_reference;
 
     private String author_email;
     private User user_data;
+    private String current_user_email;
 
     private GoogleMap google_map;
     private MapView map_view;
@@ -62,6 +66,8 @@ public class TripActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trip);
+
+        current_user_email = FirebaseAuth.getInstance().getCurrentUser().getEmail().replace(".", ",");
 
         map_view = findViewById(R.id.mapView_trip);
         map_view.onCreate(savedInstanceState);
@@ -89,12 +95,14 @@ public class TripActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         current_trip = (Trip) getIntent().getSerializableExtra("trip");
+        current_trip_key = (String) getIntent().getSerializableExtra("trip_key");
         author_email = current_trip.getAuthorEmail();
 
         storage_reference = storage.getReferenceFromUrl("gs://footprint-aff8d.appspot.com")
                 .child("images")
                 .child(author_email);
 
+        // get author information
         db_reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -118,6 +126,7 @@ public class TripActivity extends AppCompatActivity
             }
         });
 
+        // show trip name in the layout
         TextView textView_trip_name = findViewById(R.id.textView_trip_name);
         textView_trip_name.setText(current_trip.getTripName());
 
@@ -163,6 +172,43 @@ public class TripActivity extends AppCompatActivity
                 }
             });
             i = i + 1;
+        }
+
+        // get vote count information
+        TextView textView_number_of_votes = findViewById(R.id.textView_number_of_votes);
+        textView_number_of_votes.setText(current_trip.getVoteCount() + " votes");
+
+        // implement the vote button
+        final Button button_vote = findViewById(R.id.button_vote);
+        if (current_trip.checkVoter(current_user_email)) {
+            // the user has voted the trip
+            button_vote.setText("voted");
+            button_vote.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    // the user take back the vote
+                    button_vote.setText("vote");
+                    db_reference.child("trips")
+                            .child(current_trip_key)
+                            .child("voterMap")
+                            .child(current_user_email)
+                            .removeValue();
+                }
+            });
+        } else {
+            // the user has not voted the trip
+            button_vote.setText("vote");
+            button_vote.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    button_vote.setText("voted");
+                    db_reference.child("trips")
+                            .child(current_trip_key)
+                            .child("voterMap")
+                            .child(current_user_email)
+                            .setValue("");
+                }
+            });
         }
     }
 

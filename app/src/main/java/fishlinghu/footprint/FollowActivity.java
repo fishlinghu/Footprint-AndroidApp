@@ -126,7 +126,6 @@ public class FollowActivity extends AppCompatActivity
             final String trip_key = pair.getKey();
             final String author_name = pair.getValue();
 
-
             // get the trip data
             db_reference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -140,6 +139,7 @@ public class FollowActivity extends AppCompatActivity
                         public void onClick(View v) {
                             Intent next_intent = new Intent(FollowActivity.this, TripActivity.class);
                             next_intent.putExtra("trip", current_trip);
+                            next_intent.putExtra("trip_key", trip_key);
                             startActivity(next_intent);
                         }
                     });
