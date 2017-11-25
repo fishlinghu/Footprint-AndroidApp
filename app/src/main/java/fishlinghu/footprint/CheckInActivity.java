@@ -70,6 +70,8 @@ public class CheckInActivity extends AppCompatActivity implements
     private Spinner spinner_hours;
     private Spinner spinner_mins;
 
+    private int rotated_degree;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,7 +91,6 @@ public class CheckInActivity extends AppCompatActivity implements
         Matrix matrix = new Matrix();
 
         try {
-            int rotated_degree;
             ExifInterface exif = new ExifInterface(filepath);
             int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
                     ExifInterface.ORIENTATION_NORMAL);
@@ -137,6 +138,7 @@ public class CheckInActivity extends AppCompatActivity implements
                         last_location.getLatitude(),
                         last_location.getLongitude(),
                         photo_url,
+                        rotated_degree,
                         calendar.getTime(),
                         location_intro,
                         location_name,

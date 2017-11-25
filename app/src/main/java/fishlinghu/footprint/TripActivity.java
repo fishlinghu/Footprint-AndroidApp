@@ -3,6 +3,7 @@ package fishlinghu.footprint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -166,13 +167,16 @@ public class TripActivity extends AppCompatActivity
             StorageReference photo_ref = storage_reference.child(
                     temp_check_in.getPhotoUrl()
             );
+            final Matrix matrix = new Matrix();
+            matrix.postRotate(temp_check_in.getPhotoRotatedDegree());
             photo_ref.getBytes(SIXTEEN_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                 @Override
                 public void onSuccess(byte[] bytes) {
                     Bitmap temp_bitmap = getResizedBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
-                    photo_list.set(j, temp_bitmap);
+                    Bitmap rotated_bitmap = Bitmap.createBitmap(temp_bitmap , 0, 0, temp_bitmap.getWidth(), temp_bitmap.getHeight(), matrix, true);
+                    photo_list.set(j, rotated_bitmap);
                     ImageView temp_image_view = image_view_list.get(j);
-                    temp_image_view.setImageBitmap(temp_bitmap);
+                    temp_image_view.setImageBitmap(rotated_bitmap);
                     temp_image_view.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                 }
             });

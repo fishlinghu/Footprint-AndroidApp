@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
@@ -121,15 +122,22 @@ public class LocationActivity extends AppCompatActivity
             @Override
             public void onSuccess(byte[] bytes) {
                 final Bitmap temp_bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                // rotate the image
+                final Matrix matrix = new Matrix();
+                matrix.postRotate(current_check_in.getPhotoRotatedDegree());
+                final Bitmap rotated_bitmap = Bitmap.createBitmap(temp_bitmap , 0, 0, temp_bitmap.getWidth(), temp_bitmap.getHeight(), matrix, true);
+
+                // show the image
                 ImageView temp_image_view = findViewById(R.id.imageView_location_photo);
-                temp_image_view.setImageBitmap(temp_bitmap);
+                temp_image_view.setImageBitmap(rotated_bitmap);
 
                 // set button behavior as storing photo
                 Button button_download = findViewById(R.id.button_download);
                 button_download.setOnClickListener(new View.OnClickListener(){
                     @Override
                     public void onClick(View v) {
-                        storePhoto(temp_bitmap, filename, LocationActivity.this);
+                        storePhoto(rotated_bitmap, filename, LocationActivity.this);
                     }
                 });
             }

@@ -21,8 +21,8 @@ public class Trip implements Serializable{
         this.tripName = "NoName";
     }
 
-    public void addCheckIn(Double latitude, Double longitude, String photo_url, Date date_time, String description, String locationName, String stayingTime) {
-        checkInList.add(new CheckIn(latitude, longitude, photo_url, date_time, description, locationName, stayingTime));
+    public void addCheckIn(Double latitude, Double longitude, String photo_url, int photoRotatedDegree, Date date_time, String description, String locationName, String stayingTime) {
+        checkInList.add(new CheckIn(latitude, longitude, photo_url, photoRotatedDegree, date_time, description, locationName, stayingTime));
     }
 
     public ArrayList<CheckIn> getCheckInList() {
