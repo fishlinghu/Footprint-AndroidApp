@@ -10,6 +10,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -251,7 +252,9 @@ public class ProfileActivity extends AppCompatActivity
         if (id == R.id.nav_home) {
             startActivity(new Intent(ProfileActivity.this, MainActivity.class));
         } else if (id == R.id.nav_user_profile) {
-
+            Intent next_intent = new Intent(ProfileActivity.this, ProfileActivity.class);
+            next_intent.putExtra("account_email", current_user_account_email);
+            startActivity(next_intent);
         } else if (id == R.id.nav_start_trip) {
             startActivity(new Intent(ProfileActivity.this, RecordTripActivity.class));
         } else if (id == R.id.nav_follow) {
