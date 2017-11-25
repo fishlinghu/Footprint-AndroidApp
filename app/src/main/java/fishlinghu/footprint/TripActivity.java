@@ -60,6 +60,9 @@ public class TripActivity extends AppCompatActivity
 
     long SIXTEEN_MEGABYTE = 1024 * 1024 * 16;
 
+    private Boolean is_voted;
+    private int vote_count;
+
     private Task<Void> all_task;
 
     @Override
@@ -97,6 +100,8 @@ public class TripActivity extends AppCompatActivity
         current_trip = (Trip) getIntent().getSerializableExtra("trip");
         current_trip_key = (String) getIntent().getSerializableExtra("trip_key");
         author_email = current_trip.getAuthorEmail();
+        is_voted = current_trip.checkVoter(current_user_email);
+        vote_count = current_trip.getVoteCount();
 
         storage_reference = storage.getReferenceFromUrl("gs://footprint-aff8d.appspot.com")
                 .child("images")
@@ -175,32 +180,35 @@ public class TripActivity extends AppCompatActivity
         }
 
         // get vote count information
-        TextView textView_number_of_votes = findViewById(R.id.textView_number_of_votes);
-        textView_number_of_votes.setText(current_trip.getVoteCount() + " votes");
+        final TextView textView_number_of_votes = findViewById(R.id.textView_number_of_votes);
+        textView_number_of_votes.setText(vote_count + " votes");
 
         // implement the vote button
         final Button button_vote = findViewById(R.id.button_vote);
-        if (current_trip.checkVoter(current_user_email)) {
-            // the user has voted the trip
+        if (is_voted) {
             button_vote.setText("voted");
-            button_vote.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View v) {
-                    // the user take back the vote
+        } else {
+            button_vote.setText("vote");
+        }
+        button_vote.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                if (is_voted) {
+                    // state changes from voted to not voted
+                    --vote_count;
+                    textView_number_of_votes.setText(vote_count + " votes");
+                    is_voted = false;
                     button_vote.setText("vote");
                     db_reference.child("trips")
                             .child(current_trip_key)
                             .child("voterMap")
                             .child(current_user_email)
                             .removeValue();
-                }
-            });
-        } else {
-            // the user has not voted the trip
-            button_vote.setText("vote");
-            button_vote.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View v) {
+                } else {
+                    // state changes from not voted to voted
+                    ++vote_count;
+                    textView_number_of_votes.setText(vote_count + " votes");
+                    is_voted = true;
                     button_vote.setText("voted");
                     db_reference.child("trips")
                             .child(current_trip_key)
@@ -208,8 +216,8 @@ public class TripActivity extends AppCompatActivity
                             .child(current_user_email)
                             .setValue("");
                 }
-            });
-        }
+            }
+        });
     }
 
     @Override
