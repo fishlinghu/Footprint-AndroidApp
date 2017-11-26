@@ -4,6 +4,7 @@ import android.location.Location;
 import android.util.Log;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -19,6 +20,7 @@ public class CheckIn implements Serializable {
     private String description;
     private String locationName;
     private String stayingTime;
+    private ArrayList<Comment> commentList = new ArrayList<>();
 
     public CheckIn() {}
 
@@ -31,6 +33,10 @@ public class CheckIn implements Serializable {
         this.description = description;
         this.locationName = locationName;
         this.stayingTime = stayingTime;
+    }
+
+    public void addComment(String userName, String userEmail, String content) {
+        commentList.add(new Comment(userName, userEmail, content));
     }
 
     public void setLocationName(String locationName) {

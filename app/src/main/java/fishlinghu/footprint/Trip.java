@@ -14,6 +14,7 @@ public class Trip implements Serializable{
     private String authorEmail;
     private String tripName;
     private ArrayList<CheckIn> checkInList = new ArrayList<>();
+    private ArrayList<Comment> commentList = new ArrayList<>();
     // maping of email of voter to an empty string
     private Map<String, String> voterMap = new HashMap<>();
 
@@ -23,6 +24,10 @@ public class Trip implements Serializable{
 
     public void addCheckIn(Double latitude, Double longitude, String photo_url, int photoRotatedDegree, Date date_time, String description, String locationName, String stayingTime) {
         checkInList.add(new CheckIn(latitude, longitude, photo_url, photoRotatedDegree, date_time, description, locationName, stayingTime));
+    }
+
+    public void addComment(String userName, String userEmail, String content) {
+        commentList.add(new Comment(userName, userEmail, content));
     }
 
     public ArrayList<CheckIn> getCheckInList() {
