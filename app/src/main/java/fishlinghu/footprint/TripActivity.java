@@ -227,6 +227,11 @@ public class TripActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap map) {
         google_map = map;
+        try {
+            google_map.setMyLocationEnabled(true);
+        } catch (SecurityException e) {
+
+        }
         plotMap(current_trip, google_map, TripActivity.this);
     }
 
