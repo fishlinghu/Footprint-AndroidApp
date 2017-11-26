@@ -3,6 +3,7 @@ package fishlinghu.footprint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -13,6 +14,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -80,15 +82,6 @@ public class TripActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -141,7 +134,18 @@ public class TripActivity extends AppCompatActivity
         LinearLayout ll = findViewById(R.id.ll_trip_in);
         int i = 0;
         while (i < current_trip.getCheckInList().size()) {
-            final int j = i;
+            final CheckIn temp_check_in = current_trip.getCheckInList().get(i);
+
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            TextView temp_text_view = new TextView(getApplicationContext());
+            temp_text_view.setText((i+1) + ". " + temp_check_in.getLocationName());
+            temp_text_view.setTextColor(Color.BLACK);
+            temp_text_view.setLayoutParams(params);
+            ll.addView(temp_text_view);
+
             ImageView temp_image_view = new ImageView(getApplicationContext());
             temp_image_view.setId(genID());
             ll.addView(temp_image_view);
@@ -149,7 +153,7 @@ public class TripActivity extends AppCompatActivity
                 @Override
                 public void onClick(View v) {
                     Intent next_intent = new Intent(TripActivity.this, LocationActivity.class);
-                    next_intent.putExtra("current_check_in", current_trip.getCheckInList().get(j));
+                    next_intent.putExtra("current_check_in", temp_check_in);
                     next_intent.putExtra("author_email", author_email);
                     startActivity(next_intent);
                 }

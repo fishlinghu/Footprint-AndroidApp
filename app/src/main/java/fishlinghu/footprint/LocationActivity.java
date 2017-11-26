@@ -21,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +29,11 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -42,8 +48,14 @@ public class LocationActivity extends AppCompatActivity
 
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private StorageReference storage_reference;
+    private DatabaseReference db_reference = FirebaseDatabase.getInstance().getReference();
 
     private String author_email;
+
+    private User user_data;
+
+    private FirebaseUser google_user = FirebaseAuth.getInstance().getCurrentUser();
+    private String account_email = google_user.getEmail();
 
     long SIXTEEN_MEGABYTE = 1024 * 1024 * 16;
 
@@ -53,15 +65,6 @@ public class LocationActivity extends AppCompatActivity
         setContentView(R.layout.activity_location);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -140,6 +143,32 @@ public class LocationActivity extends AppCompatActivity
                         storePhoto(rotated_bitmap, filename, LocationActivity.this);
                     }
                 });
+            }
+        });
+
+        // get current user information
+        db_reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                user_data = dataSnapshot.child("users").child(account_email.replace(".", ",")).getValue(User.class);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        // implement the comment button
+        Button button_comment = findViewById(R.id.button_comment);
+        button_comment.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                EditText editText_description = findViewById(R.id.editText_comment);
+                String comment_content = editText_description.getText().toString();
+                if (comment_content.length() > 0) {
+                    Comment comment = new Comment(user_data.getName(), account_email, comment_content);
+                }
             }
         });
     }
