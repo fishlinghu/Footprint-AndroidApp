@@ -12,6 +12,66 @@
     tools:layout_editor_absoluteY="81dp"
     tools:showIn="@layout/app_bar_location">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/button_download">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/textView_location_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Location Name"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/textView_visiting_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@+id/textView_location_name"
+                android:layout_below="@+id/textView_location_name"
+                android:text="TextView" />
+
+            <TextView
+                android:id="@+id/textView15"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@+id/textView_location_description"
+                android:layout_below="@+id/textView_visiting_time"
+                android:text="Recommended staying time:" />
+
+            <TextView
+                android:id="@+id/textView_recommended_staying_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@+id/textView_location_description"
+                android:layout_below="@+id/textView15"
+                android:text="TextView" />
+
+            <TextView
+                android:id="@+id/textView_location_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@+id/textView_visiting_time"
+                android:layout_below="@+id/textView15"
+                android:ems="10"
+                android:inputType="textMultiLine" />
+
+            <Button
+                android:id="@+id/button_comment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@+id/textView_recommended_staying_time"
+                android:text="Comment" />
+
+        </RelativeLayout>
+    </ScrollView>
+
     <ImageView
         android:id="@+id/imageView_location_photo"
         android:layout_width="match_parent"
@@ -24,27 +84,6 @@
         tools:layout_editor_absoluteX="16dp"
         tools:layout_editor_absoluteY="16dp" />
 
-    <TextView
-        android:id="@+id/textView_location_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Location Name"
-        android:textSize="18sp"
-        android:layout_below="@+id/button_download"
-        android:layout_alignStart="@+id/imageView_location_photo" />
-
-    <TextView
-        android:id="@+id/textView_location_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textMultiLine"
-        tools:layout_editor_absoluteX="18dp"
-        tools:layout_editor_absoluteY="385dp"
-        android:layout_marginTop="19dp"
-        android:layout_below="@+id/textView15"
-        android:layout_alignStart="@+id/textView_visiting_time" />
-
     <Button
         android:id="@+id/button_download"
         android:layout_width="wrap_content"
@@ -54,28 +93,14 @@
         android:layout_marginTop="11dp"
         android:text="Download Photo" />
 
-    <TextView
-        android:id="@+id/textView_visiting_time"
-        android:layout_width="wrap_content"
+    <EditText
+        android:id="@+id/editText_comment"
+        android:layout_width="280dp"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/textView_location_name"
-        android:layout_below="@+id/textView_location_name"
-        android:text="TextView" />
-
-    <TextView
-        android:id="@+id/textView15"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/textView_location_description"
-        android:layout_below="@+id/textView_visiting_time"
-        android:text="Recommended staying time:" />
-
-    <TextView
-        android:id="@+id/textView_recommended_staying_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/textView_location_description"
-        android:layout_below="@+id/textView15"
-        android:text="TextView" />
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/button_download"
+        android:layout_marginTop="72dp"
+        android:ems="10"
+        android:inputType="textPersonName" />
 
 </RelativeLayout>
