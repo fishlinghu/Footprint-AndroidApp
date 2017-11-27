@@ -64,6 +64,8 @@ public class LocationActivity extends AppCompatActivity
     private FirebaseUser google_user = FirebaseAuth.getInstance().getCurrentUser();
     private String account_email = google_user.getEmail();
 
+    private ArrayList<Integer> textview_comment_idx_list = new ArrayList<>();
+
     long SIXTEEN_MEGABYTE = 1024 * 1024 * 16;
 
     @Override
@@ -168,57 +170,20 @@ public class LocationActivity extends AppCompatActivity
             }
         });
 
-        // get all comments
-        final ArrayList<Comment> existing_comments = new ArrayList<>();
-        db_reference
-                .child("trips")
-                .child(trip_key)
-                .child("checkInList")
-                .child(Integer.toString(check_in_idx))
-                .child("comments")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Comment temp_comment = snapshot.getValue(Comment.class);
-                    existing_comments.add(temp_comment);
-                }
-                // sort all comments using time stamp
-                Collections.sort(existing_comments, new CommentComparator());
-
-                // showing all comments
-                RelativeLayout rr = findViewById(R.id.rr_location_inner);
-                int previous_id = R.id.editText_comment;
-                for (Comment temp_comment : existing_comments) {
-                    TextView temp_text_view = new TextView(getApplicationContext());
-                    RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-                            RelativeLayout.LayoutParams.WRAP_CONTENT,
-                            RelativeLayout.LayoutParams.WRAP_CONTENT
-                    );
-                    params.addRule(RelativeLayout.BELOW, previous_id);
-                    int temp_id = View.generateViewId();
-                    temp_text_view.setId(temp_id);
-                    temp_text_view.setText(temp_comment.getUserName() + " says:\n" + temp_comment.getContent());
-                    temp_text_view.setTextColor(Color.BLACK);
-                    rr.addView(temp_text_view, params);
-                    previous_id = temp_id;
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        // retrieve and show all comments
+        showComments();
 
         // implement the comment button
         Button button_comment = findViewById(R.id.button_comment);
         button_comment.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
+                // get user's comment
                 EditText editText_description = findViewById(R.id.editText_comment);
                 String comment_content = editText_description.getText().toString();
                 editText_description.setText("");
+
+                // write the comment to database
                 if (comment_content.length() > 0) {
                     // ArrayList<Comment> existing_comments = current_check_in.getCommentList();
                     Calendar calendar = Calendar.getInstance();
@@ -240,8 +205,62 @@ public class LocationActivity extends AppCompatActivity
                             .child(comment_key)
                             .setValue(new Comment(user_data.getName(), account_email, comment_content, calendar.getTime()));
                 }
+
+                // show user's comment
+                showComments();
             }
         });
+    }
+
+    private void showComments() {
+        final RelativeLayout rr = findViewById(R.id.rr_location_inner);
+
+        // remove existing comments for refreshing
+        for (int textview_idx : textview_comment_idx_list) {
+            rr.removeView(findViewById(textview_idx));
+        }
+
+        final ArrayList<Comment> existing_comments = new ArrayList<>();
+        db_reference
+                .child("trips")
+                .child(trip_key)
+                .child("checkInList")
+                .child(Integer.toString(check_in_idx))
+                .child("comments")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            Comment temp_comment = snapshot.getValue(Comment.class);
+                            existing_comments.add(temp_comment);
+                        }
+                        // sort all comments using time stamp
+                        Collections.sort(existing_comments, new CommentComparator());
+
+                        // showing all comments
+                        int previous_id = R.id.editText_comment;
+                        for (Comment temp_comment : existing_comments) {
+                            TextView temp_text_view = new TextView(getApplicationContext());
+                            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                                    RelativeLayout.LayoutParams.WRAP_CONTENT,
+                                    RelativeLayout.LayoutParams.WRAP_CONTENT
+                            );
+                            params.addRule(RelativeLayout.BELOW, previous_id);
+                            int temp_id = View.generateViewId();
+                            textview_comment_idx_list.add(temp_id);
+                            temp_text_view.setId(temp_id);
+                            temp_text_view.setText(temp_comment.getUserName() + " says:\n" + temp_comment.getContent());
+                            temp_text_view.setTextColor(Color.BLACK);
+                            rr.addView(temp_text_view, params);
+                            previous_id = temp_id;
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
     }
 
     public static void storePhoto(Bitmap bitmap, String filename, Context context) {
