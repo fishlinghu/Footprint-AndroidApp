@@ -18,8 +18,9 @@
         android:layout_below="@+id/button_download">
 
         <RelativeLayout
+            android:id="@+id/rr_location_inner"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/textView_location_name"
@@ -69,6 +70,17 @@
                 android:layout_below="@+id/textView_recommended_staying_time"
                 android:text="Comment" />
 
+            <EditText
+                android:id="@+id/editText_comment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/textView_location_description"
+                android:layout_toLeftOf="@+id/button_comment"
+                android:layout_toStartOf="@+id/button_comment"
+                android:ems="10"
+                android:inputType="textPersonName" />
+
         </RelativeLayout>
     </ScrollView>
 
@@ -92,15 +104,5 @@
         android:layout_below="@+id/imageView_location_photo"
         android:layout_marginTop="11dp"
         android:text="Download Photo" />
-
-    <EditText
-        android:id="@+id/editText_comment"
-        android:layout_width="280dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/button_download"
-        android:layout_marginTop="72dp"
-        android:ems="10"
-        android:inputType="textPersonName" />
 
 </RelativeLayout>

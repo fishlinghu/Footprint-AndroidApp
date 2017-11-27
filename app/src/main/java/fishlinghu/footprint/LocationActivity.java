@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.os.Bundle;
 import android.os.Environment;
@@ -23,6 +24,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,11 +42,14 @@ import com.google.firebase.storage.StorageReference;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 public class LocationActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private CheckIn current_check_in;
+    private String trip_key;
+    private int check_in_idx;
 
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private StorageReference storage_reference;
@@ -76,6 +81,8 @@ public class LocationActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         current_check_in = (CheckIn) getIntent().getSerializableExtra("current_check_in");
+        trip_key = (String) getIntent().getSerializableExtra("trip_key");
+        check_in_idx = (int) getIntent().getSerializableExtra("check_in_idx");
 
         // set download button function
         Button button_download = findViewById(R.id.button_download);
@@ -159,6 +166,30 @@ public class LocationActivity extends AppCompatActivity
             }
         });
 
+        int previous_id = R.id.editText_comment;
+
+        // showing all comments
+        ArrayList<Comment> existing_comments = current_check_in.getCommentList();
+        RelativeLayout rr = findViewById(R.id.rr_location_inner);
+        int temp_num = 567;
+        for (Comment temp_comment : existing_comments) {
+            if (findViewById(previous_id) == null) {
+                Log.d("DEBUG---", "CANNOT find view with id " + previous_id);
+            }
+            TextView temp_text_view = new TextView(getApplicationContext());
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                    RelativeLayout.LayoutParams.WRAP_CONTENT,
+                    RelativeLayout.LayoutParams.WRAP_CONTENT
+            );
+            params.addRule(RelativeLayout.BELOW, previous_id);
+            int temp_id = View.generateViewId();
+            temp_text_view.setId(temp_id);
+            temp_text_view.setText(temp_comment.getUserName() + " says:\n" + temp_comment.getContent());
+            temp_text_view.setTextColor(Color.BLACK);
+            rr.addView(temp_text_view, params);
+            previous_id = temp_id;
+        }
+
         // implement the comment button
         Button button_comment = findViewById(R.id.button_comment);
         button_comment.setOnClickListener(new View.OnClickListener(){
@@ -166,8 +197,17 @@ public class LocationActivity extends AppCompatActivity
             public void onClick(View v) {
                 EditText editText_description = findViewById(R.id.editText_comment);
                 String comment_content = editText_description.getText().toString();
+                editText_description.setText("");
                 if (comment_content.length() > 0) {
-                    Comment comment = new Comment(user_data.getName(), account_email, comment_content);
+                    ArrayList<Comment> existing_comments = current_check_in.getCommentList();
+                    existing_comments.add(new Comment(user_data.getName(), account_email, comment_content));
+                    db_reference
+                            .child("trips")
+                            .child(trip_key)
+                            .child("checkInList")
+                            .child(Integer.toString(check_in_idx))
+                            .child("commentList")
+                            .setValue(existing_comments);
                 }
             }
         });

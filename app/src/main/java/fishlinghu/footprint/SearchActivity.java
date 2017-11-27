@@ -84,7 +84,7 @@ public class SearchActivity extends AppCompatActivity
                         while (i >= 0) {
                             final Trip temp_trip = trip_list.get(i);
                             Button temp_button = new Button(getApplicationContext());
-                            int view_id = genID();
+                            int view_id = View.generateViewId();
                             view_id_list.add(view_id);
                             temp_button.setId( view_id );
                             temp_button.setText(temp_trip.getTripName());
@@ -110,20 +110,6 @@ public class SearchActivity extends AppCompatActivity
                 });
             }
         });
-    }
-
-    static public int genID(){
-        AtomicInteger sNextGeneratedId = new AtomicInteger(1);
-        for (;;) {
-            final int result = sNextGeneratedId.get();
-            // aapt-generated IDs have the high byte nonzero; clamp to the range under that.
-            int newValue = result + 1;
-            if (newValue > 0x00FFFFFF)
-                newValue = 1; // Roll over to 1, not 0.
-            if (sNextGeneratedId.compareAndSet(result, newValue)) {
-                return result;
-            }
-        }
     }
 
     @Override

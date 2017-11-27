@@ -28,8 +28,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-import static fishlinghu.footprint.SearchActivity.genID;
-
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -90,7 +88,7 @@ public class MainActivity extends AppCompatActivity
                             final Trip temp_trip = trip_list.get(i);
                             final String temp_trip_key = trip_key_list.get(i);
                             Button temp_button = new Button(getApplicationContext());
-                            int view_id = genID();
+                            int view_id = View.generateViewId();
                             view_id_list.add(view_id);
                             temp_button.setId( view_id );
                             temp_button.setText(temp_trip.getTripName());

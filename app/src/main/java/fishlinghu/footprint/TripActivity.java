@@ -42,7 +42,6 @@ import java.util.ArrayList;
 
 import static fishlinghu.footprint.RecordTripActivity.getResizedBitmap;
 import static fishlinghu.footprint.RecordTripActivity.plotMap;
-import static fishlinghu.footprint.SearchActivity.genID;
 
 public class TripActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
@@ -134,6 +133,7 @@ public class TripActivity extends AppCompatActivity
         LinearLayout ll = findViewById(R.id.ll_trip_in);
         int i = 0;
         while (i < current_trip.getCheckInList().size()) {
+            final int j = i;
             final CheckIn temp_check_in = current_trip.getCheckInList().get(i);
 
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
@@ -147,13 +147,14 @@ public class TripActivity extends AppCompatActivity
             ll.addView(temp_text_view);
 
             ImageView temp_image_view = new ImageView(getApplicationContext());
-            temp_image_view.setId(genID());
             ll.addView(temp_image_view);
             temp_image_view.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v) {
                     Intent next_intent = new Intent(TripActivity.this, LocationActivity.class);
                     next_intent.putExtra("current_check_in", temp_check_in);
+                    next_intent.putExtra("check_in_idx", j);
+                    next_intent.putExtra("trip_key", current_trip_key);
                     next_intent.putExtra("author_email", author_email);
                     startActivity(next_intent);
                 }

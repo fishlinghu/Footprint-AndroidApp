@@ -64,4 +64,8 @@ public class CheckIn implements Serializable {
     public String getStayingTime() {
         return stayingTime;
     }
+
+    public ArrayList<Comment> getCommentList() {
+        return commentList;
+    }
 }
