@@ -26,10 +26,6 @@ public class Trip implements Serializable{
         checkInList.add(new CheckIn(latitude, longitude, photo_url, photoRotatedDegree, date_time, description, locationName, stayingTime));
     }
 
-    public void addComment(String userName, String userEmail, String content) {
-        commentList.add(new Comment(userName, userEmail, content));
-    }
-
     public ArrayList<CheckIn> getCheckInList() {
         return checkInList;
     }

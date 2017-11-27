@@ -43,6 +43,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 
 public class LocationActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -166,29 +168,48 @@ public class LocationActivity extends AppCompatActivity
             }
         });
 
-        int previous_id = R.id.editText_comment;
+        // get all comments
+        final ArrayList<Comment> existing_comments = new ArrayList<>();
+        db_reference
+                .child("trips")
+                .child(trip_key)
+                .child("checkInList")
+                .child(Integer.toString(check_in_idx))
+                .child("comments")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Comment temp_comment = snapshot.getValue(Comment.class);
+                    existing_comments.add(temp_comment);
+                }
+                // sort all comments using time stamp
+                Collections.sort(existing_comments, new CommentComparator());
 
-        // showing all comments
-        ArrayList<Comment> existing_comments = current_check_in.getCommentList();
-        RelativeLayout rr = findViewById(R.id.rr_location_inner);
-        int temp_num = 567;
-        for (Comment temp_comment : existing_comments) {
-            if (findViewById(previous_id) == null) {
-                Log.d("DEBUG---", "CANNOT find view with id " + previous_id);
+                // showing all comments
+                RelativeLayout rr = findViewById(R.id.rr_location_inner);
+                int previous_id = R.id.editText_comment;
+                for (Comment temp_comment : existing_comments) {
+                    TextView temp_text_view = new TextView(getApplicationContext());
+                    RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                            RelativeLayout.LayoutParams.WRAP_CONTENT,
+                            RelativeLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    params.addRule(RelativeLayout.BELOW, previous_id);
+                    int temp_id = View.generateViewId();
+                    temp_text_view.setId(temp_id);
+                    temp_text_view.setText(temp_comment.getUserName() + " says:\n" + temp_comment.getContent());
+                    temp_text_view.setTextColor(Color.BLACK);
+                    rr.addView(temp_text_view, params);
+                    previous_id = temp_id;
+                }
             }
-            TextView temp_text_view = new TextView(getApplicationContext());
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-                    RelativeLayout.LayoutParams.WRAP_CONTENT,
-                    RelativeLayout.LayoutParams.WRAP_CONTENT
-            );
-            params.addRule(RelativeLayout.BELOW, previous_id);
-            int temp_id = View.generateViewId();
-            temp_text_view.setId(temp_id);
-            temp_text_view.setText(temp_comment.getUserName() + " says:\n" + temp_comment.getContent());
-            temp_text_view.setTextColor(Color.BLACK);
-            rr.addView(temp_text_view, params);
-            previous_id = temp_id;
-        }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         // implement the comment button
         Button button_comment = findViewById(R.id.button_comment);
@@ -199,15 +220,25 @@ public class LocationActivity extends AppCompatActivity
                 String comment_content = editText_description.getText().toString();
                 editText_description.setText("");
                 if (comment_content.length() > 0) {
-                    ArrayList<Comment> existing_comments = current_check_in.getCommentList();
-                    existing_comments.add(new Comment(user_data.getName(), account_email, comment_content));
+                    // ArrayList<Comment> existing_comments = current_check_in.getCommentList();
+                    Calendar calendar = Calendar.getInstance();
+
+                    String comment_key = db_reference.child("trips")
+                            .child(trip_key)
+                            .child("checkInList")
+                            .child(Integer.toString(check_in_idx))
+                            .child("comments")
+                            .push()
+                            .getKey();
+
                     db_reference
                             .child("trips")
                             .child(trip_key)
                             .child("checkInList")
                             .child(Integer.toString(check_in_idx))
-                            .child("commentList")
-                            .setValue(existing_comments);
+                            .child("comments")
+                            .child(comment_key)
+                            .setValue(new Comment(user_data.getName(), account_email, comment_content, calendar.getTime()));
                 }
             }
         });

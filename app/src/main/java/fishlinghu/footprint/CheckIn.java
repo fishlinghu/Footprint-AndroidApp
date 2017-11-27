@@ -35,10 +35,6 @@ public class CheckIn implements Serializable {
         this.stayingTime = stayingTime;
     }
 
-    public void addComment(String userName, String userEmail, String content) {
-        commentList.add(new Comment(userName, userEmail, content));
-    }
-
     public void setLocationName(String locationName) {
         this.locationName = locationName;
     }
