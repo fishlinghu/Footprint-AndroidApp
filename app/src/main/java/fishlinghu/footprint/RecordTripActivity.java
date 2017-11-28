@@ -269,18 +269,25 @@ public class RecordTripActivity extends AppCompatActivity implements OnMapReadyC
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
         // add markers to the map
+        int i = 1;
         for (CheckIn temp_check_in : current_trip.getCheckInList()) {
             LatLng temp_lat_lng = new LatLng( temp_check_in.getLatitude(), temp_check_in.getLongitude());
-            Marker temp_marker = google_map.addMarker(new MarkerOptions()
-                    .position(temp_lat_lng));
+            Marker temp_marker = google_map.addMarker(
+                    new MarkerOptions()
+                        .position(temp_lat_lng).title(temp_check_in.getLocationName()).snippet(Integer.toString(i))
+            );
+            temp_marker.showInfoWindow();
             marker_list.add(temp_marker);
             builder.include(temp_marker.getPosition());
+            ++i;
         }
 
         // replace the icon as photo
-        int i = 0;
         /*
+        int i = 0;
+
         while (i < marker_list.size()) {
+
             final int j = i;
             StorageReference photo_ref = storage_reference.child(
                     current_trip.getCheckInList().get(i).getPhotoUrl()
@@ -294,8 +301,6 @@ public class RecordTripActivity extends AppCompatActivity implements OnMapReadyC
                     );
                 }
             });
-
-            i = i + 1;
         }
         */
 
