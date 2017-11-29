@@ -20,6 +20,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -59,6 +60,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -365,7 +367,13 @@ public class RecordTripActivity extends AppCompatActivity implements OnMapReadyC
     private void openCamera() {
         // set the filepath
         Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+        File temp_file = new File(fileUri.getPath());
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(
+                this,
+                "fishlinghu.footprint.fileprovider",
+                temp_file
+            )
+        );
         // open camera to capture picture
         startActivityForResult(intent, IMAGE_CAPTURE);
     }
