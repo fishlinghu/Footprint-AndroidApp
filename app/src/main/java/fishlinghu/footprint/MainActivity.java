@@ -2,9 +2,7 @@ package fishlinghu.footprint;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -27,13 +25,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private DatabaseReference db_reference = FirebaseDatabase.getInstance().getReference();
     private ArrayList<Trip> trip_list = new ArrayList<>();
-    private ArrayList<String> trip_key_list = new ArrayList<>();
+    // private ArrayList<String> trip_key_list = new ArrayList<>();
     private String keyword = "";
 
     private ArrayList<Integer> view_id_list = new ArrayList<>();
@@ -67,7 +66,7 @@ public class MainActivity extends AppCompatActivity
                     i = i - 1;
                 }
                 trip_list.clear();
-                trip_key_list.clear();
+                // trip_key_list.clear();
                 view_id_list.clear();
                 // get the user input keyword
                 keyword = query.toString().toLowerCase();
@@ -79,19 +78,23 @@ public class MainActivity extends AppCompatActivity
                             Trip temp_trip = snapshot.getValue(Trip.class);
                             Log.d("DEBUG---", snapshot.getKey());
                             if (temp_trip.getTripName().toLowerCase().contains(keyword)) {
+                                temp_trip.setTripKey(snapshot.getKey());
                                 trip_list.add(temp_trip);
-                                trip_key_list.add(snapshot.getKey());
+                                // trip_key_list.add();
                             }
                         }
+                        Collections.sort(trip_list, new TripVoteComparator());
                         int i = trip_list.size() - 1;
                         while (i >= 0) {
                             final Trip temp_trip = trip_list.get(i);
-                            final String temp_trip_key = trip_key_list.get(i);
+                            final String temp_trip_key = temp_trip.getTripKey();
                             Button temp_button = new Button(getApplicationContext());
                             int view_id = View.generateViewId();
                             view_id_list.add(view_id);
                             temp_button.setId( view_id );
-                            temp_button.setText(temp_trip.getTripName());
+                            temp_button.setText(
+                                    temp_trip.getTripName() + " (" + temp_trip.getVoterMap().size() + " votes)"
+                            );
                             temp_button.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                             ll.addView(temp_button);
                             temp_button.setOnClickListener(new View.OnClickListener(){

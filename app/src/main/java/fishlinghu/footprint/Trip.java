@@ -18,6 +18,8 @@ public class Trip implements Serializable{
     // maping of email of voter to an empty string
     private Map<String, String> voterMap = new HashMap<>();
 
+    private String tripKey;
+
     public Trip() {
         this.tripName = "NoName";
     }
@@ -59,5 +61,13 @@ public class Trip implements Serializable{
 
     public boolean checkVoter(String voter_email) {
         return voterMap.containsKey(voter_email);
+    }
+
+    public void setTripKey(String tripKey) {
+        this.tripKey = tripKey;
+    }
+
+    public String getTripKey() {
+        return tripKey;
     }
 }
