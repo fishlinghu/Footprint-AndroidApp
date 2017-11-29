@@ -6,15 +6,12 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -163,10 +160,20 @@ public class TripActivity extends AppCompatActivity
             i = i + 1;
         }
 
+        ArrayList<CheckIn> checkInArrayList = current_trip.getCheckInList();
+
+        // compute and show trip length
+        CheckIn first_checkin = checkInArrayList.get(0);
+        CheckIn last_checkin = checkInArrayList.get(checkInArrayList.size()-1);
+        long diff = last_checkin.getDateTime().getTime() - first_checkin.getDateTime().getTime();
+        long diff_days = diff / (24 * 60 * 60 * 1000);
+        TextView textView_trip_length = findViewById(R.id.textView_trip_length);
+        textView_trip_length.setText("Trip length: " + (diff_days+1) + " days");
+
         // download all photos
         final ArrayList<Bitmap> photo_list = new ArrayList<>();
         i = 0;
-        for (CheckIn temp_check_in : current_trip.getCheckInList()) {
+        for (CheckIn temp_check_in : checkInArrayList) {
             photo_list.add(null);
             final int j = i;
             StorageReference photo_ref = storage_reference.child(

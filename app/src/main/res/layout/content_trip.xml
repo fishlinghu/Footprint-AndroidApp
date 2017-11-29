@@ -17,6 +17,12 @@
         android:layout_height="wrap_content"
         android:text="TextView" />
 
+    <TextView
+        android:id="@+id/textView_trip_length"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TextView" />
+
     <com.google.android.gms.maps.MapView
         android:id="@+id/mapView_trip"
         android:layout_width="match_parent"
