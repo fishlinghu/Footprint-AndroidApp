@@ -9,6 +9,15 @@ import java.util.Comparator;
 public class CommentComparator implements Comparator<Comment> {
     @Override
     public int compare(Comment o1, Comment o2) {
-        return o1.getDateTime().compareTo(o2.getDateTime());
+        long diff = o1.getDateTime().getTime() - o2.getDateTime().getTime();
+        int result;
+        if (diff > 0) {
+            result = 1;
+        } else if (diff == 0) {
+            result = 0;
+        } else {
+            result = -1;
+        }
+        return result;
     }
 }
