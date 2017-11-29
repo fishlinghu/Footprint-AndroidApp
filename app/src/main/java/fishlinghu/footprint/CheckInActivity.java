@@ -154,15 +154,14 @@ public class CheckInActivity extends AppCompatActivity implements
                         if (dataSnapshot.exists()) {
                             db_reference.child("users").child(account_email.replace(".",",")).child("unfinishedTrip").setValue(current_trip);
                         }
+                        startActivity(new Intent(CheckInActivity.this, RecordTripActivity.class));
+                        finish();
                     }
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
 
                     }
                 });
-
-                startActivity(new Intent(CheckInActivity.this, RecordTripActivity.class));
-                finish();
             }
         });
 
